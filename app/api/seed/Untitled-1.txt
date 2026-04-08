@@ -1,0 +1,183 @@
+import { MongoClient } from "mongodb";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const client = new MongoClient(process.env.MONGODB_URI);
+
+async function seed() {
+  try {
+    await client.connect();
+    const db = client.db(process.env.DB_NAME);
+
+    console.log("🌱 Seeding database...");
+
+    // साफ old data (optional)
+    await Promise.all([
+      db.collection("packages").deleteMany({}),
+      db.collection("hotels").deleteMany({}),
+      db.collection("activities").deleteMany({})
+    ]);
+
+    /*
+    =========================
+    HOTELS
+    =========================
+    */
+    const hotels = [
+      {
+        _id: "hotel-1",
+        hotelName: "Hotel Aurora",
+        city: "Goa",
+        starRating: "5",
+        description: "Luxury beachfront resort",
+        roomTypes: ["Deluxe Room", "Suite"],
+        amenities: ["Pool", "Spa", "WiFi", "Restaurant"],
+        images: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        _id: "hotel-2",
+        hotelName: "Goa Paradise Inn",
+        city: "Goa",
+        starRating: "4",
+        description: "Comfort stay near beach",
+        roomTypes: ["Standard Room"],
+        amenities: ["WiFi", "Breakfast"],
+        images: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    await db.collection("hotels").insertMany(hotels);
+
+    /*
+    =========================
+    ACTIVITIES
+    =========================
+    */
+    const activities = [
+      {
+        _id: "activity-1",
+        title: "Scuba Diving",
+        description: "Explore underwater life in Goa",
+        activityType: "adventure",
+        defaultDuration: "3 hrs",
+        location: "Goa",
+        tags: ["water", "adventure"],
+        images: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        _id: "activity-2",
+        title: "Beach Sightseeing",
+        description: "Relax and explore Goa beaches",
+        activityType: "sightseeing",
+        defaultDuration: "4 hrs",
+        location: "Goa",
+        tags: ["relax"],
+        images: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    await db.collection("activities").insertMany(activities);
+
+    /*
+    =========================
+    PACKAGES
+    =========================
+    */
+    const packages = [
+      {
+        id: "pkg-1",
+        title: "Goa Luxury Escape",
+        destination: "Goa",
+        tripDuration: "3 Days / 2 Nights",
+        travelStyle: "Luxury",
+        tourType: "Leisure",
+        exclusivityLevel: "Premium",
+        price: {
+          currency: "INR",
+          amount: "15000"
+        },
+        shortDescription: "Enjoy a luxury Goa vacation",
+        longDescription: "Experience beaches, nightlife and water sports.",
+        availability: {
+          availableMonths: ["Nov", "Dec", "Jan"],
+          fixedDepartureDates: [],
+          blackoutDates: []
+        },
+        inclusions: ["Hotel", "Breakfast", "Activities"],
+        exclusions: ["Flights"],
+        knowBeforeYouGo: ["Carry sunscreen"],
+        additionalInfo: {
+          aboutDestination: "Goa is famous for beaches",
+          quickInfo: {
+            destinationsCovered: "North Goa",
+            duration: "3 Days",
+            startPoint: "Goa Airport",
+            endPoint: "Goa Airport"
+          },
+          experiencesCovered: ["Beach", "Adventure"],
+          notToMiss: ["Baga Beach"]
+        },
+        faqs: [],
+        itinerary: [
+          {
+            dayNumber: 1,
+            city: "Goa",
+            dayType: "arrival",
+            mealsIncluded: { breakfast: false, lunch: false, dinner: true },
+            hotelStays: [
+              {
+                hotelId: "hotel-1"
+              }
+            ],
+            activities: []
+          },
+          {
+            dayNumber: 2,
+            city: "Goa",
+            dayType: "sightseeing",
+            mealsIncluded: { breakfast: true, lunch: false, dinner: false },
+            hotelStays: [
+              {
+                hotelId: "hotel-1"
+              }
+            ],
+            activities: [
+              {
+                activityId: "activity-2"
+              }
+            ]
+          },
+          {
+            dayNumber: 3,
+            city: "Goa",
+            dayType: "departure",
+            mealsIncluded: { breakfast: true },
+            hotelStays: [],
+            activities: []
+          }
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    await db.collection("packages").insertMany(packages);
+
+    console.log("✅ Seeding completed successfully!");
+  } catch (err) {
+    console.error("❌ Seed error:", err);
+  } finally {
+    await client.close();
+  }
+}
+
+seed();
