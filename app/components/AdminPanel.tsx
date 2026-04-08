@@ -2,7 +2,7 @@
 import { useState, useMemo, useRef, createContext, useContext, useEffect } from "react";
 
 // ══════════════════════════════════════════════════════════════════
-//   AVENTARA ELITE — Admin Panel v6                                 
+//   STAY VACATION — Admin Panel v6                                  
 //   Master Activities · Master Hotels · Two-Way Sync               
 //   Summarised View · SaaS-level Architecture                      
 // ══════════════════════════════════════════════════════════════════
@@ -3042,7 +3042,7 @@ const Sidebar = ({ page, setPage, counts }) => {
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shadow-lg"><Ic.Globe /></div>
-          <div><div className="font-bold text-sm tracking-wide">Aventara Elite</div><div className="text-xs text-blue-400">Admin Panel v6</div></div>
+          <div><div className="font-bold text-sm tracking-wide">Stay Vacation</div><div className="text-xs text-blue-400">Admin Panel v6</div></div>
         </div>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
@@ -3072,7 +3072,7 @@ const Sidebar = ({ page, setPage, counts }) => {
         <p>✓ Two-way activityRef/hotelRef sync</p>
         <p>✓ Summarised View tab</p><p>✓ Override fields per package</p>
       </div>
-      <div className="px-5 py-3 border-t border-white/10"><p className="text-xs text-blue-600">© 2025 Aventara Elite</p></div>
+      <div className="px-5 py-3 border-t border-white/10"><p className="text-xs text-blue-600">© 2025 Stay Vacation</p></div>
     </aside>
   );
 };
@@ -3159,7 +3159,7 @@ export default function App() {
   }, [packages]);
 
   const PAGE_META = {
-    dashboard: { title: "Dashboard", subtitle: "Aventara Elite — Travel Management" },
+    dashboard: { title: "Dashboard", subtitle: "Stay Vacation — Travel Management" },
     packages: { title: "Travel Packages", subtitle: `${packages.length} packages in catalog` },
     create: { title: "Create Package", subtitle: "Add a new travel package" },
     edit: { title: "Edit Package", subtitle: selectedPkg ? `Editing: ${selectedPkg.title || selectedPkg.destination}` : "" },

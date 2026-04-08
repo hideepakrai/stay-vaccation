@@ -1,26 +1,134 @@
 @import "tailwindcss";
 
+/* ─── BRAND TOKENS ──────────────────────────────────────────────── */
 :root {
+  --sv-dark:   #1a3f4e;
+  --sv-mid:    #2a5f74;
+  --sv-aqua:   #2fa3f2;
+  --sv-light:  #F4F9E9;
+  --sv-cream:  #fdf8f0;
+  --sv-sand:   #e8dcc8;
+  --sv-accent: #f97316;
+
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ─── BASE ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
+
+/* ─── CUSTOM SCROLLBAR ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: var(--sv-aqua); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sv-dark); }
+
+/* ─── ANIMATIONS ────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(47, 163, 242, 0.4); }
+  50%       { box-shadow: 0 0 0 12px rgba(47, 163, 242, 0); }
+}
+@keyframes heroSlide {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.06); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fadeUp   { animation: fadeUp 0.6s ease forwards; }
+.animate-fadeIn   { animation: fadeIn 0.5s ease forwards; }
+.animate-slideLeft { animation: slideLeft 0.5s ease forwards; }
+.animate-pulse-glow { animation: pulse-glow 2s infinite; }
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* ─── GLASSMORPHISM ─────────────────────────────────────────────── */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.glass-dark {
+  background: rgba(26, 63, 78, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ─── GRADIENT TEXTS ────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--sv-aqua), #60d0ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-gold {
+  background: linear-gradient(135deg, #f97316, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── HERO SECTION ──────────────────────────────────────────────── */
+.hero-bg {
+  background: linear-gradient(135deg, var(--sv-dark) 0%, #0f2a35 50%, #1a4a5e 100%);
+}
+.hero-img { animation: heroSlide 8s ease-in-out infinite alternate; }
+
+/* ─── CARD HOVER ────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -10px rgba(26, 63, 78, 0.25);
+}
+
+/* ─── SKELETON SHIMMER ──────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── UTILITY ───────────────────────────────────────────────────── */
+.section-pad { padding: 5rem 0; }
+.container-sv { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+.font-display { font-family: 'Playfair Display', Georgia, serif; }
+
+/* Ensure admin panel styles remain unaffected */
