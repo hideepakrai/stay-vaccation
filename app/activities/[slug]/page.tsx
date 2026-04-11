@@ -2,22 +2,21 @@ import ActivityPageContent from "./ActivityPageContent";
 import ActivityClientPage from "@/app/components/ActivityClientPage";
 import { getActivitiesByDestination } from "@/app/utils/getActivities";
 import { getDestinationBySlug } from "@/app/utils/getDestinations";
+import { getDatabase } from "@/app/utils/getDatabase";
 import { Metadata } from "next";
 
 async function getActivityData(slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  
-  // 1. Try to fetch CMS Activity Page
+  // 1. Try to fetch CMS Activity Page DIRECTLY FROM DB
   try {
-    const res = await fetch(`${baseUrl}/api/activity-pages/${slug}`, {
-      next: { revalidate: 60 }
-    });
-    if (res.ok) {
-      const d = await res.json();
-      if (d.success && d.data) return { type: "cms", data: d.data };
+    const db = await getDatabase();
+    const cmsPage = await db.collection("activity_pages").findOne({ slug });
+    
+    if (cmsPage) {
+      // Convert to plain object to avoid serialization issues
+      return { type: "cms", data: JSON.parse(JSON.stringify(cmsPage)) };
     }
   } catch (e) {
-    console.error("CMS FETCH ERROR", e);
+    console.error("CMS DB FETCH ERROR", e);
   }
 
   // 2. Fallback: Try to fetch Destination + Master Activities
@@ -76,3 +75,4 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     />
   );
 }
+

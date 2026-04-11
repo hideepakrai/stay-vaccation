@@ -7,7 +7,16 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function POST(req: NextRequest) {
   try {
+    if (!JWT_SECRET) {
+      console.error("CRITICAL ERROR: JWT_SECRET is not defined in environment variables.");
+      return NextResponse.json(
+        { success: false, message: "Server configuration error. Please contact support." },
+        { status: 500 }
+      );
+    }
+
     const { email, password } = await req.json();
+
 
     if (!email || !password) {
       return NextResponse.json(
