@@ -20,6 +20,8 @@ export interface StoreContextType {
   setTransfers: React.Dispatch<React.SetStateAction<TransferRecord[]>>;
 }
 
+
+
 const StoreContext = createContext<StoreContextType | null>(null);
 
 const useStore = () => {
@@ -2614,7 +2616,7 @@ const DuplicatePackageModal = ({ isOpen, onClose, basePkgId, setBasePkgId, packa
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">New Duration (Days)</label>
             <input type="number" min="1" max="15" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900" value={days} onChange={e => setDays(parseInt(e.target.value))} />
-             <p className="text-[10px] text-gray-500 mt-1">Maximum 15 days allowed.</p>
+            <p className="text-[10px] text-gray-500 mt-1">Maximum 15 days allowed.</p>
           </div>
         </div>
         <div className="p-5 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
@@ -3079,8 +3081,8 @@ const TransfersPage = () => {
   const [modal, setModal] = useState<{ mode: "create" | "edit"; data: TransferRecord | null } | null>(null);
   const [search, setSearch] = useState("");
 
-  const filtered = transfers.filter(t => 
-    !search || t.pickupLocation.toLowerCase().includes(search.toLowerCase()) || 
+  const filtered = transfers.filter(t =>
+    !search || t.pickupLocation.toLowerCase().includes(search.toLowerCase()) ||
     t.dropLocation.toLowerCase().includes(search.toLowerCase()) ||
     t.vehicleType.toLowerCase().includes(search.toLowerCase())
   );
@@ -3319,18 +3321,18 @@ export default function App() {
     cloned.title = (cloned.title || "Untitled") + " (Copy)";
     cloned.slug = (cloned.slug || cloned.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')) + "-" + Date.now();
     cloned.tripDuration = `${days} Days / ${days - 1} Nights`;
-    
+
     if (!cloned.itinerary) cloned.itinerary = [];
     const currentLen = cloned.itinerary.length;
-    
+
     if (days < currentLen) cloned.itinerary = cloned.itinerary.slice(0, days);
     else if (days > currentLen) {
       cloned.itinerary = [
-         ...cloned.itinerary, 
-         ...Array.from({ length: days - currentLen }, (_, i) => makeDay(currentLen + i + 1))
+        ...cloned.itinerary,
+        ...Array.from({ length: days - currentLen }, (_, i) => makeDay(currentLen + i + 1))
       ];
     }
-    
+
     setDuplicatePkgData(cloned);
     setDuplicateModalOpen(false);
     setPage("create");
@@ -3494,7 +3496,7 @@ export default function App() {
         <main className="ml-60 pt-16 min-h-screen">
           <div className="p-6 max-w-[1400px]">
             {["create", "edit", "view"].includes(page) && (
-              <button onClick={() => setPage("packages")} className="inline-flex items-center gap-1.5 text-sm text-blue-900 font-semibold mb-5 hover:underline"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>Back to Packages</button>
+              <button onClick={() => setPage("packages")} className="inline-flex items-center gap-1.5 text-sm text-blue-900 font-semibold mb-5 hover:underline"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>Back to Packages</button>
             )}
             {page === "dashboard" && <Dashboard setPage={setPage} onOpenDuplicateModal={() => { setDuplicateBasePkgId(""); setDuplicateModalOpen(true); }} />}
             {page === "packages" && <PackagesListing setPage={setPage} setSelectedId={setSelectedId} onDuplicate={(pkg: Package) => { setDuplicateBasePkgId(pkg.id); setDuplicateModalOpen(true); }} />}
