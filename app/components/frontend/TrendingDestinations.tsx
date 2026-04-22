@@ -14,6 +14,7 @@ export interface Destination {
   label?: string;
   type?: string;
   description?: string;
+  packageCount?: number;
 }
 
 const FALLBACK_DESTINATIONS: Destination[] = [
@@ -67,23 +68,31 @@ export default function TrendingDestinations({ destinations: initialDestinations
       .then(data => {
         console.log("Trending Destinations API Response:", data);
         if (data.success && data.data) {
-          // Schema Validation: title, slug, image, type
-          const validItems = data.data.filter((item: any) => {
-            const isValid = item.title && item.slug && item.image && item.type;
-            if (!isValid) {
-              console.warn("Skipping destination due to missing required fields (title, slug, image, type):", item);
-            }
-            return isValid;
+          // Normalize items from DB
+          const normalizedItems = data.data.map((item: any) => {
+            const packageCount = item.packageCount || 0;
+            return {
+              ...item,
+              title: item.name || item.title || "Unknown Destination",
+              slug: item.slug,
+              image: item.image || DEFAULT_IMAGE,
+              type: item.type || "international",
+              label: `${packageCount} ${packageCount === 1 ? 'Package' : 'Packages'}`,
+              price: item.price || "TBA",
+              packageCount: packageCount
+            };
           });
 
+          // Filter out items that are absolutely unusable (no slug)
+          const validItems = normalizedItems.filter((item: any) => item.slug);
+
           if (validItems.length === 0) {
-            console.warn("DB is empty or data is invalid. Showing fallback dummy destinations.");
+            console.warn("DB returned no usable destinations. Showing fallback dummy destinations.");
             setItems(FALLBACK_DESTINATIONS);
           } else {
             setItems(validItems);
           }
         } else {
-          // If API fails or success is false, use fallback
           setItems(FALLBACK_DESTINATIONS);
         }
       })

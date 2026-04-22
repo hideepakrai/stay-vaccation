@@ -42,6 +42,7 @@ function PackagesContent() {
 
   // Filters from URL
   const [search, setSearch] = useState(searchParams.get("q") || "");
+  const [destParam, setDestParam] = useState(searchParams.get("destination") || "");
   const [type, setType] = useState(decodeURIComponent(searchParams.get("type") || ""));
   const [style, setStyle] = useState(searchParams.get("style") || "");
   const [duration, setDuration] = useState(searchParams.get("duration") || "");
@@ -66,6 +67,15 @@ function PackagesContent() {
         p.shortDescription?.toLowerCase().includes(q)
       );
     }
+
+    if (destParam.trim()) {
+      const d = destParam.toLowerCase();
+      list = list.filter(p => 
+        p.destinationSlug === d || 
+        p.destination?.toLowerCase().includes(d)
+      );
+    }
+
     if (type) list = list.filter(p => p.tourType === type);
     if (style) list = list.filter(p => p.travelStyle === style);
     if (duration) list = list.filter(p => durationBucket(parseDays(p.tripDuration)) === duration);
@@ -77,11 +87,11 @@ function PackagesContent() {
     if (sort === "duration-desc") list.sort((a, b) => parseDays(b.tripDuration) - parseDays(a.tripDuration));
 
     return list;
-  }, [packages, search, type, style, duration, sort]);
+  }, [packages, search, destParam, type, style, duration, sort]);
 
-  const activeFilters = [type, style, duration].filter(Boolean).length;
+  const activeFilters = [type, style, duration, destParam].filter(Boolean).length;
 
-  const clearFilters = () => { setType(""); setStyle(""); setDuration(""); setSearch(""); setSort("default"); };
+  const clearFilters = () => { setType(""); setStyle(""); setDuration(""); setSearch(""); setDestParam(""); setSort("default"); };
 
   return (
     <>
@@ -212,8 +222,9 @@ function PackagesContent() {
               </div>
 
               {/* Active filter pills */}
-              {(type || style || duration) && (
+              {(type || style || duration || destParam) && (
                 <div className="flex flex-wrap gap-2 mb-5">
+                  {destParam && <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#2fa3f2] text-white rounded-full text-xs font-semibold">Destination: {destParam} <button onClick={() => setDestParam("")} className="text-white/60 hover:text-white">✕</button></span>}
                   {type && <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1a3f4e] text-white rounded-full text-xs font-semibold">{type} <button onClick={() => setType("")} className="text-white/60 hover:text-white">✕</button></span>}
                   {style && <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#2fa3f2] text-white rounded-full text-xs font-semibold">{style} <button onClick={() => setStyle("")} className="text-white/60 hover:text-white">✕</button></span>}
                   {duration && <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1a3f4e]/70 text-white rounded-full text-xs font-semibold">{duration} <button onClick={() => setDuration("")} className="text-white/60 hover:text-white">✕</button></span>}
