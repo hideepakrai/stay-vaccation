@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo, useRef, createContext, useContext, useEffect } from "react";
+import { REGIONS } from "@/app/constants/regions";
 
 // ══════════════════════════════════════════════════════════════════
 //   STAY VACATION — Admin Panel v6                                  
@@ -18,6 +19,12 @@ export interface StoreContextType {
   setCoupons: React.Dispatch<React.SetStateAction<Coupon[]>>;
   transfers: TransferRecord[];
   setTransfers: React.Dispatch<React.SetStateAction<TransferRecord[]>>;
+  destinations: Destination[];
+  setDestinations: React.Dispatch<React.SetStateAction<Destination[]>>;
+  regions: Region[];
+  setRegions: React.Dispatch<React.SetStateAction<Region[]>>;
+  refreshRegions: () => Promise<void>;
+  refreshDestinations: () => Promise<void>;
 }
 
 
@@ -182,8 +189,10 @@ export interface ItineraryDay {
 
 export interface Package {
   id: string;
+  slug?: string;
   title: string;
   destination: string;
+  destinationId?: string;
   tripDuration: string;
   travelStyle: string;
   tourType: string;
@@ -256,6 +265,26 @@ export interface TransferRecord {
   price: number;
   currency: string;
   duration?: string;
+}
+
+export interface Region {
+  _id: string;
+  name: string;
+  icon: string;
+  order: number;
+  isActive?: boolean;
+}
+
+export interface Destination {
+  _id: string;
+  name: string;
+  slug: string;
+  regionId: string;
+  image: string;
+  description: string;
+  isEnabled: boolean;
+  isActive: boolean;
+  packageCount?: number;
 }
 
 // ─── FACTORIES ────────────────────────────────────────────────────
@@ -2010,6 +2039,7 @@ const FAQDisplay = ({ faqs }) => {
 
 // ─── PACKAGE FORM ─────────────────────────────────────────────────
 const PackageForm = ({ initial, onSave, onCancel, mode }) => {
+  const { destinations } = useStore();
   const [form, setForm] = useState(initial);
   const [itinerary, setItinerary] = useState(initial.itinerary || []);
   const [faqs, setFaqs] = useState(initial.faqs || []);
@@ -2044,7 +2074,30 @@ const PackageForm = ({ initial, onSave, onCancel, mode }) => {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2"><FL required>Package Title</FL><Inp placeholder="e.g. Bali Royal Escape" value={form.title || ""} onChange={e => upd("title", e.target.value)} /></div>
-          <div><FL required>Destination</FL><Inp placeholder="e.g. Bali, Indonesia" value={form.destination || ""} onChange={e => upd("destination", e.target.value)} /></div>
+          <div>
+            <FL required>Destination (Display)</FL>
+            <Inp placeholder="e.g. Bali, Indonesia" value={form.destination || ""} onChange={e => upd("destination", e.target.value)} />
+          </div>
+          <div>
+            <FL required>Linked Destination (Relational)</FL>
+            <select
+              value={form.destinationId || ""}
+              onChange={e => {
+                const id = e.target.value;
+                upd("destinationId", id);
+                // Also auto-update the display name if currently empty or matches an existing dest
+                const dest = destinations.find(d => d._id === id);
+                if (dest && (!form.destination || destinations.some(d => d.name === form.destination))) {
+                  upd("destination", dest.name);
+                }
+              }}
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 transition-all cursor-pointer">
+              <option value="">Select linked destination...</option>
+              {destinations.map(d => (
+                <option key={d._id} value={d._id}>{d.name}</option>
+              ))}
+            </select>
+          </div>
           <div>
             <FL required>Trip Duration</FL>
             <Sel options={DURATION_OPTIONS} placeholder="Select duration" value={form.tripDuration || ""} onChange={e => handleDurationChange(e.target.value)} />
@@ -3305,6 +3358,45 @@ const BusinessSettingsPage = () => {
   );
 };
 
+const LocationsPage = () => {
+  const { regions, destinations } = useStore();
+  return (
+    <div className="space-y-8">
+      <div className="space-y-12">
+        {regions.map((region) => {
+          const regionDestinations = destinations.filter(d => d.regionId === region._id);
+          return (
+            <div key={region._id} className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center text-xl shadow-md text-white`}>
+                  {region.icon}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">{region.name}</h3>
+                <div className="h-px flex-1 bg-gray-100" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {regionDestinations.map((dest) => (
+                  <Card key={dest._id} className="p-4 hover:border-blue-200 transition-all group">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="text-2xl">{dest.name.split(',')[0] === "Bali" ? "🌺" : "📍"}</div>
+                      <Badge className="bg-blue-50 text-blue-700 border-blue-100">
+                        {dest.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </div>
+                    <h4 className="font-bold text-sm text-gray-900">{dest.name}</h4>
+                    <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{dest.description}</p>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // ─── SIDEBAR ──────────────────────────────────────────────────────
 const Sidebar = ({ page, setPage, counts }) => {
   const nav = [
@@ -3313,6 +3405,7 @@ const Sidebar = ({ page, setPage, counts }) => {
     { key: "bookings", label: "Bookings", icon: <Ic.Booking />, group: "main", badge: counts.bookings },
     { key: "transfers", label: "Transfers", icon: <Ic.Car />, group: "main", badge: counts.transfers },
     { key: "coupons", label: "Coupons", icon: <Ic.Tag />, group: "main", badge: counts.coupons },
+    { key: "locations", label: "Locations", icon: <Ic.Globe />, group: "main" },
     { key: "business-settings", label: "Business Settings", icon: <Ic.Settings />, group: "main" },
     { key: "master-activities", label: "Activities", icon: <Ic.Activity />, group: "master", badge: counts.activities },
     { key: "master-hotels", label: "Hotels", icon: <Ic.Hotel />, group: "master", badge: counts.hotels },
@@ -3373,6 +3466,7 @@ export default function App() {
   const [formData, setFormData] = useState({
     title: "",
     destination: "",
+    destinationId: "",
     duration: "",
     price: {
       currency: "INR",
@@ -3399,6 +3493,8 @@ export default function App() {
   const [transfers, setTransfers] = useState<TransferRecord[]>([]);
   const [masterActivities, setMasterActivities] = useState(INIT_ACTIVITIES);
   const [masterHotels, setMasterHotels] = useState(INIT_HOTELS);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
   const [selectedId, setSelectedId] = useState(null);
   const fetchPackages = async () => {
     try {
@@ -3421,13 +3517,41 @@ export default function App() {
     } catch (err) { console.error(err); }
   };
 
+  const fetchDestinations = async () => {
+    try {
+      const res = await fetch("/api/destinations");
+      const result = await res.json();
+      if (result.success) setDestinations(result.data);
+    } catch (err) { console.error(err); }
+  };
+
+  const fetchRegions = async () => {
+    try {
+      const res = await fetch("/api/regions");
+      const result = await res.json();
+      if (result.success) setRegions(result.data);
+    } catch (err) { console.error(err); }
+  };
+
   useEffect(() => {
     fetchPackages();
     fetchTransfers();
+    fetchDestinations();
+    fetchRegions();
   }, []);
   const selectedPkg = packages.find(p => p.id === selectedId);
 
-  const store = { packages, setPackages, masterActivities, setMasterActivities, masterHotels, setMasterHotels, coupons, setCoupons, transfers, setTransfers };
+  const store = { 
+    packages, setPackages, 
+    masterActivities, setMasterActivities, 
+    masterHotels, setMasterHotels, 
+    coupons, setCoupons, 
+    transfers, setTransfers,
+    destinations, setDestinations,
+    regions, setRegions,
+    refreshRegions: fetchRegions,
+    refreshDestinations: fetchDestinations
+  };
 
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
   const [duplicateBasePkgId, setDuplicateBasePkgId] = useState("");
@@ -3497,6 +3621,7 @@ export default function App() {
     "coupons": { title: "Coupons", subtitle: `${coupons.length} discount coupon${coupons.length !== 1 ? "s" : ""}` },
     "bookings": { title: "Bookings", subtitle: "View and manage all guest bookings" },
     "transfers": { title: "Transfer Management", subtitle: `${transfers.length} active routes` },
+    "locations": { title: "Locations", subtitle: "Manage travel locations" },
     "business-settings": { title: "Business Settings", subtitle: "Manage your global identity and contacts" },
   };
   const meta = PAGE_META[page] || PAGE_META.dashboard;
@@ -3636,6 +3761,7 @@ export default function App() {
             {page === "coupons" && <CouponsPage />}
             {page === "bookings" && <BookingsPage />}
             {page === "transfers" && <TransfersPage />}
+            {page === "locations" && <LocationsPage />}
             {page === "business-settings" && <BusinessSettingsPage />}
           </div>
         </main>

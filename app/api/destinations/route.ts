@@ -34,15 +34,45 @@ export async function POST(req: NextRequest) {
 
 export const dynamic = "force-dynamic";
 
-// GET ALL DESTINATIONS
-export async function GET() {
+// GET ALL OR SINGLE DESTINATION
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
     const db = await getDatabase();
+
+    if (id) {
+      const queryId = /^[0-9a-fA-F]{24}$/.test(id) ? new ObjectId(id) : id;
+      const destination = await db.collection("destinations").findOne({ _id: queryId as any });
+      
+      if (!destination) {
+        return NextResponse.json({ success: false, message: "Destination not found" }, { status: 404 });
+      }
+
+      const packageCount = await db.collection("packages").countDocuments({ destinationSlug: destination.slug });
+
+      return NextResponse.json({ 
+        success: true, 
+        data: { ...destination, _id: destination._id.toString(), packageCount } 
+      });
+    }
+
     const destinations = await db.collection("destinations").find().toArray();
+    
+    // Fetch real package counts
+    const packageCounts = await db.collection("packages").aggregate([
+      { $group: { _id: "$destinationSlug", count: { $sum: 1 } } }
+    ]).toArray();
+    
+    const countMap: Record<string, number> = {};
+    packageCounts.forEach(pc => {
+      if (pc._id) countMap[pc._id] = pc.count;
+    });
 
     const normalized = destinations.map(d => ({
       ...d,
       _id: d._id.toString(),
+      packageCount: countMap[d.slug] || 0
     }));
 
     return NextResponse.json({ success: true, data: normalized }, {

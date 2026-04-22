@@ -52,7 +52,8 @@ export async function POST(req: NextRequest) {
 
     const result = await collection.insertOne({
       ...body,
-      id: newPackageId,         // ← unique ID, never reuses original package's id
+      id: newPackageId,         
+      destinationId: safeObjectId(body.destinationId),
       itinerary: cleanedItinerary,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -267,6 +268,7 @@ export async function PUT(req: NextRequest) {
       {
         $set: {
           ...body,
+          destinationId: safeObjectId(body.destinationId),
           itinerary: cleanedItinerary,
           updatedAt: new Date(),
         },

@@ -23,6 +23,10 @@ export interface StoreContextType {
   setDestinations: React.Dispatch<React.SetStateAction<Destination[]>>;
   activityPages: ActivityPage[];
   setActivityPages: React.Dispatch<React.SetStateAction<ActivityPage[]>>;
+  regions: Region[];
+  setRegions: React.Dispatch<React.SetStateAction<Region[]>>;
+  refreshRegions: () => Promise<void>;
+  refreshDestinations: () => Promise<void>;
 }
 
 export const StoreContext = createContext<StoreContextType | null>(null);
@@ -148,13 +152,24 @@ export interface ActivityPage {
   updatedAt?: string;
 }
 
+export interface Region {
+  _id: string;
+  name: string;
+  icon: string;
+  order: number;
+  isActive?: boolean;
+}
+
 export interface Destination {
   _id: string;
   name: string;
   slug: string;
+  regionId: string;
   image: string;
   description: string;
   isEnabled: boolean;
+  isActive: boolean;
+  packageCount?: number;
 }
 
 export interface MasterHotel {
@@ -238,6 +253,7 @@ export interface Package {
   slug?: string;
   title: string;
   destination: string;
+  destinationId?: string;
   tripDuration: string;
   travelStyle: string;
   tourType: string;
@@ -457,7 +473,11 @@ export const Sel = ({ options, placeholder, value, onChange, className = "" }: {
     })}
   </select>
 );
-export const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => <div className={cls("bg-white rounded-xl border border-gray-100 shadow-sm", className)}>{children}</div>;
+export const Card = ({ children, className = "", ...props }: { children: React.ReactNode; className?: string; [key: string]: any }) => (
+  <div className={cls("bg-white rounded-xl border border-gray-100 shadow-sm", className)} {...props}>
+    {children}
+  </div>
+);
 export const FL = ({ children, required, optional, className }: { children: React.ReactNode; required?: boolean; optional?: boolean; className?: string }) => (
   <label className={cls("block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5", className)}>
     {children}{required && <span className="text-red-500 ml-0.5">*</span>}{optional && <span className="ml-1 text-gray-400 font-normal normal-case">(optional)</span>}
@@ -512,32 +532,32 @@ export const Modal = ({ open, onClose, title, children, wide = false }: ModalPro
 
 // ─── ICONS ────────────────────────────────────────────────────────
 export const Ic = {
-  Dashboard: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
-  Package: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" /></svg>,
-  Activity: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
-  Hotel: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
-  Plus: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>,
-  Trash: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
-  Edit: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
-  Eye: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
-  Search: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
-  Back: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>,
-  Chevron: ({ open }) => <svg className={cls("w-4 h-4 transition-transform", open && "rotate-180")} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>,
-  Globe: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth={2} /><path strokeLinecap="round" strokeWidth={2} d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>,
-  Arrow: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>,
-  MapPin: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
-  Clock: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth={2} /><path strokeLinecap="round" strokeWidth={2} d="M12 6v6l4 2" /></svg>,
-  Car: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16H7m9.293-9H6l-3 6h18l-1-4.5H16.29" /></svg>,
-  Star: () => <svg className="w-3.5 h-3.5 fill-amber-400 text-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>,
-  Link: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>,
-  Sync: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
-  Info: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth={2} /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16v-4m0-4h.01" /></svg>,
-  Summary: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>,
-  Check: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>,
-  X: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>,
-  Tag: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>,
-  Booking: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>,
-  Document: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+  Dashboard: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
+  Package: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" /></svg>,
+  Activity: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
+  Hotel: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
+  Plus: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>,
+  Trash: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
+  Edit: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+  Eye: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
+  Search: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
+  Back: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>,
+  Chevron: ({ open, ...p }: any) => <svg className={cls("w-4 h-4 transition-transform", open && "rotate-180")} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>,
+  Globe: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><circle cx="12" cy="12" r="10" strokeWidth={2} /><path strokeLinecap="round" strokeWidth={2} d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>,
+  Arrow: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>,
+  MapPin: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+  Clock: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><circle cx="12" cy="12" r="10" strokeWidth={2} /><path strokeLinecap="round" strokeWidth={2} d="M12 6v6l4 2" /></svg>,
+  Car: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16H7m9.293-9H6l-3 6h18l-1-4.5H16.29" /></svg>,
+  Star: (p: any) => <svg className="w-3.5 h-3.5 fill-amber-400 text-amber-400" viewBox="0 0 24 24" {...p}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>,
+  Link: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>,
+  Sync: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
+  Info: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><circle cx="12" cy="12" r="10" strokeWidth={2} /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16v-4m0-4h.01" /></svg>,
+  Summary: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>,
+  Check: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>,
+  X: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>,
+  Tag: (p: any) => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>,
+  Booking: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>,
+  Document: (p: any) => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" {...p}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
 };
 
 // ─── IMAGE UPLOADER ───────────────────────────────────────────────
@@ -997,8 +1017,12 @@ export const ActivityPagesPage = () => {
                  <p className="text-xs text-gray-500 line-clamp-2 italic leading-relaxed">"{page.description.short}"</p>
               </div>
               <div className="flex gap-2 mt-6 pt-4 border-t border-gray-50">
-                <Btn variant="outline" size="sm" className="flex-1" onClick={() => { setEditing(page); setModalOpen(true); }}>Edit Page</Btn>
-                <Btn variant="danger" size="sm" onClick={() => onDelete(page.slug)}><Ic.Trash /></Btn>
+                <Btn variant="outline" size="sm" className="flex-1" onClick={() => { setEditing(page); setModalOpen(true); }}>
+                  <Ic.Edit /> Edit
+                </Btn>
+                <Btn variant="danger" size="sm" className="flex-1" onClick={() => onDelete(page.slug)}>
+                  <Ic.Trash /> Delete
+                </Btn>
               </div>
             </div>
           </Card>
@@ -1303,81 +1327,6 @@ export const MasterHotelsPage = () => {
   );
 };
 
-// ─── DESTINATIONS PAGE ───────────────────────────────────────────
-export const DestinationsPage = () => {
-  const { destinations, setDestinations } = useStore();
-  const [modal, setModal] = useState<{ mode: "create" | "edit"; data: Destination | null } | null>(null);
-  const [search, setSearch] = useState("");
-
-  const filtered = destinations.filter(d => !search || d.name.toLowerCase().includes(search.toLowerCase()));
-
-  const handleSave = async (data: Destination) => {
-    try {
-      if (modal?.mode === "create") {
-        const res = await fetch("/api/destinations", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        const result = await res.json();
-        if (result.success) setDestinations(p => [...p, { ...data, _id: result.insertedId }]);
-      } else {
-        const res = await fetch("/api/destinations", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        const result = await res.json();
-        if (result.success) setDestinations(p => p.map(d => d._id === data._id ? data : d));
-      }
-      setModal(null);
-    } catch (err) { console.error("DESTINATION SAVE ERROR:", err); }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this destination?")) return;
-    try {
-      const res = await fetch("/api/destinations?id=" + id, { method: "DELETE" });
-      const result = await res.json();
-      if (result.success) setDestinations(p => p.filter(d => d._id !== id));
-      else alert("Delete failed");
-    } catch (err) { console.error("DELETE ERROR:", err); }
-  };
-
-  return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1"><div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Ic.Search /></div><Inp className="pl-9" placeholder="Search destinations…" value={search} onChange={e => setSearch(e.target.value)} /></div>
-        <Btn onClick={() => setModal({ mode: "create", data: { _id: "", name: "", slug: "", image: "", description: "", isEnabled: true } })}><Ic.Plus />New Destination</Btn>
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        {filtered.map(dest => (
-          <Card key={dest._id} className="p-4 group">
-            <div className="flex gap-4">
-              <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                {dest.image ? <img src={dest.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400"><Ic.Globe /></div>}
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between">
-                  <h3 className="font-bold text-gray-900">{dest.name}</h3>
-                  <div className="flex gap-1">
-                    <button onClick={() => setModal({ mode: "edit", data: dest })} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded"><Ic.Edit /></button>
-                    <button onClick={() => handleDelete(dest._id || "")} className="p-1 text-red-500 hover:bg-red-50 rounded"><Ic.Trash /></button>
-                  </div>
-                </div>
-                <p className="text-xs text-blue-600 font-medium">/{dest.slug}</p>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{dest.description}</p>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
-      <Modal open={!!modal} onClose={() => setModal(null)} title={modal?.mode === "create" ? "Add Destination" : "Edit Destination"}>
-        <DestinationForm initial={modal?.data} onSave={handleSave} onCancel={() => setModal(null)} />
-      </Modal>
-    </div>
-  );
-};
 
 // ─── DESTINATION FORM ──────────────────────────────────────────
 export const DestinationForm = ({ initial, onSave, onCancel }) => {
@@ -1394,7 +1343,7 @@ export const DestinationForm = ({ initial, onSave, onCancel }) => {
           <FL required>Name</FL>
           <Inp 
             placeholder="e.g. Dubai" 
-            value={data.name} 
+            value={data.name || ""} 
             onChange={e => setData({ 
               ...data, 
               name: e.target.value, 
@@ -1406,18 +1355,18 @@ export const DestinationForm = ({ initial, onSave, onCancel }) => {
           <FL required>Slug</FL>
           <Inp 
             placeholder="e.g. dubai" 
-            value={data.slug} 
+            value={data.slug || ""} 
             onChange={e => upd("slug", slugify(e.target.value))} 
           />
         </div>
       </div>
       
-      <div><FL>Description</FL><TA value={data.description} onChange={e => upd("description", e.target.value)} rows={3} placeholder="A brief overview of this destination..." /></div>
+      <div><FL>Description</FL><TA value={data.description || ""} onChange={e => upd("description", e.target.value)} rows={3} placeholder="A brief overview of this destination..." /></div>
       
       <div>
         <FL>Hero Image</FL>
         <div className="space-y-3">
-          <Inp value={data.image} onChange={e => upd("image", e.target.value)} placeholder="Enter image URL..." />
+          <Inp value={data.image || ""} onChange={e => upd("image", e.target.value)} placeholder="Enter image URL..." />
           <ImageUploader 
             images={data.image ? [data.image] : []} 
             onAdd={url => upd("image", url)} 
@@ -1427,21 +1376,87 @@ export const DestinationForm = ({ initial, onSave, onCancel }) => {
       </div>
 
       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-        <label className="flex items-center gap-2 cursor-pointer group">
-          <div className={cls("w-10 h-5 rounded-full relative transition-all", data.isEnabled !== false ? "bg-emerald-500" : "bg-gray-300")}>
-            <div className={cls("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", data.isEnabled !== false ? "right-1" : "left-1")} />
-          </div>
-          <input type="checkbox" className="sr-only" checked={data.isEnabled !== false} onChange={e => upd("isEnabled", e.target.checked)} />
-          <span className="text-xs font-bold text-gray-600 group-hover:text-gray-900 transition-colors">Enabled for Search</span>
-        </label>
+        <div className="flex items-center gap-6">
+          <label className="flex items-center gap-2 cursor-pointer group">
+            <div className={cls("w-10 h-5 rounded-full relative transition-all", data.isEnabled !== false ? "bg-blue-600" : "bg-gray-300")}>
+              <div className={cls("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", data.isEnabled !== false ? "right-1" : "left-1")} />
+            </div>
+            <input type="checkbox" className="sr-only" checked={data.isEnabled !== false} onChange={e => upd("isEnabled", e.target.checked)} />
+            <span className="text-xs font-bold text-gray-600 group-hover:text-gray-900 transition-colors">Searchable</span>
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer group">
+            <div className={cls("w-10 h-5 rounded-full relative transition-all", data.isActive !== false ? "bg-emerald-500" : "bg-gray-300")}>
+              <div className={cls("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", data.isActive !== false ? "right-1" : "left-1")} />
+            </div>
+            <input type="checkbox" className="sr-only" checked={data.isActive !== false} onChange={e => upd("isActive", e.target.checked)} />
+            <span className="text-xs font-bold text-gray-600 group-hover:text-gray-900 transition-colors">Active Status</span>
+          </label>
+        </div>
         <div className="flex gap-3">
           <Btn variant="outline" onClick={onCancel}>Cancel</Btn>
-          <Btn variant="success" onClick={() => { if (data.name.trim()) onSave(data); }}>Save Destination</Btn>
+          <Btn variant="success" onClick={() => { if (data.name.trim()) onSave(data); }}>Save Changes</Btn>
         </div>
       </div>
     </div>
   );
 };
+
+// ─── REGION FORM ──────────────────────────────────────────────
+export const RegionForm = ({ initial, onSave, onCancel }) => {
+  const [data, setData] = useState(initial || { name: "", icon: "📍", order: 0, isActive: true });
+  
+  const upd = (f, v) => setData(p => ({ ...p, [f]: v }));
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="grid grid-cols-4 gap-4">
+        <div className="col-span-3">
+          <FL required>Region Name</FL>
+          <Inp 
+            placeholder="e.g. South East Asia" 
+            value={data.name || ""} 
+            onChange={e => upd("name", e.target.value)} 
+          />
+        </div>
+        <div>
+          <FL required>Icon / Emoji</FL>
+          <Inp 
+            placeholder="📍" 
+            value={data.icon || ""} 
+            onChange={e => upd("icon", e.target.value)} 
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <FL>Display Order</FL>
+          <Inp 
+            type="number" 
+            value={data.order || 0} 
+            onChange={e => upd("order", parseInt(e.target.value) || 0)} 
+          />
+        </div>
+        <div className="flex items-end pb-2">
+           <label className="flex items-center gap-3 cursor-pointer group">
+              <div className={cls("w-10 h-5 rounded-full relative transition-all", data.isActive !== false ? "bg-emerald-500" : "bg-gray-300")}>
+                <div className={cls("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", data.isActive !== false ? "right-1" : "left-1")} />
+              </div>
+              <input type="checkbox" className="sr-only" checked={data.isActive !== false} onChange={e => upd("isActive", e.target.checked)} />
+              <span className="text-xs font-bold text-gray-600 group-hover:text-gray-900 transition-colors">Active for Frontend</span>
+           </label>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+        <Btn variant="outline" onClick={onCancel}>Cancel</Btn>
+        <Btn variant="success" onClick={() => { if (data.name.trim()) onSave(data); }}>Save Region</Btn>
+      </div>
+    </div>
+  );
+};
+
 const ActivityPicker = ({ dayAct, dayId, onUpdate, onRemove }) => {
   const { masterActivities } = useStore();
   const [open, setOpen] = useState(true);
@@ -2611,7 +2626,25 @@ export const PackageForm = ({ initial, onSave, onCancel, mode }) => {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2"><FL required>Package Title</FL><Inp placeholder="e.g. Bali Royal Escape" value={form.title || ""} onChange={e => upd("title", e.target.value)} /></div>
-          <div><FL required>Destination</FL><Inp placeholder="e.g. Bali, Indonesia" value={form.destination || ""} onChange={e => upd("destination", e.target.value)} /></div>
+          <div>
+            <FL required>Destination</FL>
+            <Sel 
+              placeholder="Select destination…" 
+              options={useStore().destinations.map(d => ({ label: d.name, value: d._id }))} 
+              value={form.destinationId || ""} 
+              onChange={e => {
+                const dest = useStore().destinations.find(d => d._id === e.target.value);
+                if (dest) {
+                  setForm(p => ({
+                    ...p,
+                    destination: dest.name,
+                    destinationId: dest._id,
+                    destinationSlug: dest.slug
+                  }));
+                }
+              }} 
+            />
+          </div>
           <div>
             <FL required>Trip Duration</FL>
             <Sel options={DURATION_OPTIONS} placeholder="Select duration" value={form.tripDuration || ""} onChange={e => handleDurationChange(e.target.value)} />
@@ -3718,10 +3751,10 @@ export const Sidebar = ({ page, setPage, counts }) => {
     { key: "coupons", label: "Coupons", icon: <Ic.Tag />, group: "main", badge: counts.coupons },
     { key: "activity-pages", label: "Activities Pages", icon: <Ic.Activity />, group: "main", badge: counts.activityPages },
     { key: "page-cms", label: "Page CMS", icon: <Ic.Document />, group: "main" },
+    { key: "locations", label: "Locations", icon: <Ic.Globe />, group: "main" },
     { key: "business-settings", label: "Business Settings", icon: <Ic.Star />, group: "main" },
     { key: "master-activities", label: "Activities", icon: <Ic.Activity />, group: "master", badge: counts.activities },
     { key: "master-hotels", label: "Hotels", icon: <Ic.Hotel />, group: "master", badge: counts.hotels },
-    { key: "destinations", label: "Destinations", icon: <Ic.Globe />, group: "master", badge: counts.destinations },
   ];
   const isActive = (key) => key === "dashboard" ? page === "dashboard" : key === "packages" ? ["packages", "create", "edit", "view"].includes(page) : page === key;
   return (
@@ -3808,6 +3841,7 @@ export const AdminStateProvider = ({ children }: { children: React.ReactNode }) 
   const [masterActivities, setMasterActivities] = useState(INIT_ACTIVITIES);
   const [masterHotels, setMasterHotels] = useState(INIT_HOTELS);
   const [selectedId, setSelectedId] = useState(null);
+  const [regions, setRegions] = useState<Region[]>([]);
   const fetchPackages = async () => {
     try {
       const res = await fetch("/api/packages");
@@ -3845,11 +3879,20 @@ export const AdminStateProvider = ({ children }: { children: React.ReactNode }) 
     } catch (err) { console.error(err); }
   };
 
+  const fetchRegions = async () => {
+    try {
+      const res = await fetch("/api/regions");
+      const result = await res.json();
+      if (result.success) setRegions(result.data);
+    } catch (err) { console.error(err); }
+  };
+
   useEffect(() => {
     fetchPackages();
     fetchTransfers();
     fetchDestinations();
     fetchActivityPages();
+    fetchRegions();
   }, []);
   const selectedPkg = packages.find(p => p.id === selectedId);
 
@@ -3860,7 +3903,9 @@ export const AdminStateProvider = ({ children }: { children: React.ReactNode }) 
     coupons, setCoupons, 
     transfers, setTransfers,
     destinations, setDestinations,
-    activityPages, setActivityPages
+    activityPages, setActivityPages,
+    regions, setRegions,
+    refreshRegions: fetchRegions, refreshDestinations: fetchDestinations
   };
 
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);

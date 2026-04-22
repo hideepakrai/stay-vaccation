@@ -48,10 +48,6 @@ export default function AdminLayoutWrapper({ children, section: propSection }: {
       title: "Transfer Management",
       subtitle: store ? `${store.transfers.length} active transfer routes` : "",
     },
-    destinations: {
-      title: "Destinations",
-      subtitle: store ? `${store.destinations.length} destinations in catalog` : "",
-    },
     "activity-pages": {
       title: "Activity Landing Pages",
       subtitle: store ? `${store.activityPages.length} pages managed` : "",
@@ -59,6 +55,10 @@ export default function AdminLayoutWrapper({ children, section: propSection }: {
     "page-cms": {
       title: "Page CMS",
       subtitle: "Manage content for dynamic web pages",
+    },
+    locations: {
+      title: "Locations",
+      subtitle: "Manage travel locations",
     },
     "business-settings": {
       title: "Business Settings",
