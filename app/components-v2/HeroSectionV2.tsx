@@ -142,11 +142,6 @@ const HeroSectionV2: React.FC<HeroSectionV2Props> = ({ section, lang = 'en' }) =
           ))}
         </div>
       )}
-
-      <div className="hero-scroll">
-        <div className="hero-scroll-line"></div>
-        SCROLL
-      </div>
     </section>
   );
 };

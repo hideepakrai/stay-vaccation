@@ -94,34 +94,39 @@ function PackagesContent() {
         image="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1800&auto=format&fit=crop&q=80"
       />
 
-      <section style={{ padding: '4rem 0', background: 'var(--white)' }}>
+      <section className="py-24 bg-[#f8f9fa]">
         <div className="container-v2">
           {/* Search bar inside the page */}
-          <div style={{ maxWidth: '600px', margin: '-6rem auto 4rem', position: 'relative', zIndex: 10 }}>
-            <div className="hero-search-v2" style={{ position: 'relative', width: '100%', bottom: 'auto', left: 'auto', transform: 'none', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(15px)', padding: '1rem', borderRadius: '1.5rem', boxShadow: 'var(--shadow2)', display: 'flex', gap: '0.5rem' }}>
-              <div className="hs-field" style={{ flex: 1 }}>
+          <div className="max-w-[640px] mx-auto -mt-36 mb-16 relative z-10 px-4">
+            <div className="bg-white/95 backdrop-blur-xl p-2 rounded-2.5xl shadow-[0_20px_50px_rgba(15,23,42,0.12)] border border-white/40 flex items-center gap-2 group transition-all duration-300 hover:shadow-[0_24px_60px_rgba(15,23,42,0.18)]">
+              <div className="flex-1 flex items-center gap-3 px-4.5 py-3">
+                <span className="text-gray-400 text-base">🔍</span>
                 <input
                   type="text"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="Search destinations, packages…"
-                  className="hs-input"
-                  style={{ width: '100%', border: 'none', background: 'transparent' }}
+                  placeholder="Search destinations, packages, style..."
+                  className="w-full border-none bg-transparent outline-none text-sm font-bold text-[#1a3f4e] placeholder-gray-400"
                 />
               </div>
-              <button className="hs-btn" style={{ borderRadius: '1rem', padding: '0 1.5rem' }}>Search</button>
+              <button className="px-7 py-3.5 bg-gradient-to-r from-[#ff9500] to-[#ff6b00] text-white text-xs font-black uppercase tracking-wider rounded-2xl shadow-[0_4px_12px_rgba(255,149,0,0.2)] hover:shadow-[0_6px_20px_rgba(255,149,0,0.35)] hover:-translate-y-0.5 transition-all duration-300">
+                Search
+              </button>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '3rem', flexDirection: 'row', flexWrap: 'wrap' }}>
+          <div className="flex flex-col lg:flex-row gap-12">
             {/* Sidebar Filters */}
-            <aside style={{ flex: '0 0 280px' }} className="hidden lg:block">
-              <div style={{ position: 'sticky', top: '100px', background: 'var(--cream)', padding: '2rem', borderRadius: '1.5rem', border: '1.5px solid #e5e7eb' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                  <h3 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '1rem' }}>Filters</h3>
+            <aside className="hidden lg:block w-[300px] shrink-0">
+              <div className="sticky top-28 bg-white p-7 rounded-[2rem] border border-gray-100 shadow-[0_4px_20px_rgba(15,23,42,0.02)]">
+                <div className="flex items-center justify-between mb-8 border-b border-gray-50 pb-4">
+                  <h3 className="font-['Poppins'] font-extrabold text-[#1a3f4e] text-[1.05rem]">Filters</h3>
                   {activeFilters > 0 && (
-                    <button onClick={clearFilters} style={{ fontSize: '0.75rem', color: 'var(--orange)', fontWeight: 700, border: 'none', background: 'transparent', cursor: 'pointer' }}>
-                      Clear All ({activeFilters})
+                    <button 
+                      onClick={clearFilters} 
+                      className="text-[10px] text-[#ff6b00] font-black uppercase tracking-wider border-none bg-transparent cursor-pointer hover:text-[#ff9500] transition-colors duration-300"
+                    >
+                      Clear ({activeFilters})
                     </button>
                   )}
                 </div>
@@ -132,30 +137,25 @@ function PackagesContent() {
                   { label: 'Travel Style', options: TRAVEL_STYLES, state: style, setter: setStyle },
                   { label: 'Duration', options: DURATIONS, state: duration, setter: setDuration }
                 ].map((group) => (
-                  <div key={group.label} style={{ marginBottom: '2rem' }}>
-                    <h4 style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>{group.label}</h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {group.options.map(opt => (
-                        <button
-                          key={opt}
-                          onClick={() => group.setter(group.state === opt ? "" : opt)}
-                          style={{
-                            textAlign: 'left',
-                            fontSize: '0.85rem',
-                            padding: '0.6rem 1rem',
-                            borderRadius: '0.75rem',
-                            border: '1px solid',
-                            borderColor: group.state === opt ? 'var(--sky)' : 'transparent',
-                            background: group.state === opt ? 'var(--white)' : 'transparent',
-                            color: group.state === opt ? 'var(--sky)' : 'var(--text)',
-                            fontWeight: group.state === opt ? 700 : 500,
-                            transition: 'all 0.3s',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {opt}
-                        </button>
-                      ))}
+                  <div key={group.label} className="mb-8 last:mb-0">
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3.5">{group.label}</h4>
+                    <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto scrollbar-hide pr-1">
+                      {group.options.map(opt => {
+                        const isActive = group.state === opt;
+                        return (
+                          <button
+                            key={opt}
+                            onClick={() => group.setter(isActive ? "" : opt)}
+                            className={`text-left text-xs px-4 py-3 rounded-xl border transition-all duration-300 font-bold ${
+                              isActive 
+                                ? 'border-[#4a90e2]/30 bg-[#e8f4fd]/50 text-[#4a90e2] shadow-sm' 
+                                : 'border-transparent text-gray-500 bg-transparent hover:bg-gray-50 hover:text-[#1a3f4e]'
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
@@ -163,51 +163,85 @@ function PackagesContent() {
             </aside>
 
             {/* Main Content Area */}
-            <div style={{ flex: 1, minWidth: '300px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                <p style={{ fontSize: '0.9rem', color: 'var(--muted)' }}>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-8 flex-wrap gap-4 pb-4 border-b border-gray-100">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                   {loading ? "Loading packages..." : (
-                    <>Found <span style={{ color: 'var(--text)', fontWeight: 800 }}>{filtered.length}</span> adventures for you</>
+                    <>Found <span className="text-[#1a3f4e] font-black text-sm normal-case">{filtered.length}</span> adventures for you</>
                   )}
                 </p>
 
-                <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)' }}>Sort by:</span>
-                  <select
-                    value={sort}
-                    onChange={e => setSort(e.target.value)}
-                    style={{ padding: '0.6rem 1.2rem', borderRadius: '1rem', border: '1.5px solid #e5e7eb', background: 'var(--white)', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text)', cursor: 'pointer' }}
-                  >
-                    {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sort by:</span>
+                  <div className="relative group shrink-0">
+                    <select
+                      value={sort}
+                      onChange={e => setSort(e.target.value)}
+                      className="appearance-none bg-white border border-gray-200 px-6 py-3 rounded-2xl text-xs font-bold text-[#1a3f4e] shadow-sm hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#4a90e2]/15 cursor-pointer pr-10 transition-all duration-300"
+                    >
+                      {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 transition-transform duration-300 group-hover:translate-y-[-30%]">
+                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Active filter pills */}
               {(type || style || duration || destParam) && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '2rem' }}>
-                  {destParam && <span className="dest-tag" style={{ background: 'var(--sky)', color: '#fff' }}>Location: {destParam} <button onClick={() => setDestParam("")} style={{ background: 'transparent', border: 'none', color: '#fff', marginLeft: '0.4rem', cursor: 'pointer' }}>✕</button></span>}
-                  {type && <span className="dest-tag" style={{ background: 'var(--sky)', color: '#fff' }}>{type} <button onClick={() => setType("")} style={{ background: 'transparent', border: 'none', color: '#fff', marginLeft: '0.4rem', cursor: 'pointer' }}>✕</button></span>}
-                  {style && <span className="dest-tag" style={{ background: 'var(--orange)', color: '#fff' }}>{style} <button onClick={() => setStyle("")} style={{ background: 'transparent', border: 'none', color: '#fff', marginLeft: '0.4rem', cursor: 'pointer' }}>✕</button></span>}
-                  {duration && <span className="dest-tag" style={{ background: 'var(--sky-dk)', color: '#fff' }}>{duration} <button onClick={() => setDuration("")} style={{ background: 'transparent', border: 'none', color: '#fff', marginLeft: '0.4rem', cursor: 'pointer' }}>✕</button></span>}
+                <div className="flex flex-wrap gap-2.5 mb-8">
+                  {destParam && (
+                    <span className="inline-flex items-center gap-2 bg-[#e8f4fd] text-[#4a90e2] text-[10px] font-bold px-4 py-2 rounded-full border border-sky-100">
+                      Location: {destParam} 
+                      <button onClick={() => setDestParam("")} className="hover:text-red-500 transition-colors font-bold ml-1">✕</button>
+                    </span>
+                  )}
+                  {type && (
+                    <span className="inline-flex items-center gap-2 bg-[#e8f4fd] text-[#4a90e2] text-[10px] font-bold px-4 py-2 rounded-full border border-sky-100">
+                      {type} 
+                      <button onClick={() => setType("")} className="hover:text-red-500 transition-colors font-bold ml-1">✕</button>
+                    </span>
+                  )}
+                  {style && (
+                    <span className="inline-flex items-center gap-2 bg-orange-50 text-[#ff6b00] text-[10px] font-bold px-4 py-2 rounded-full border border-orange-100">
+                      {style} 
+                      <button onClick={() => setStyle("")} className="hover:text-red-500 transition-colors font-bold ml-1">✕</button>
+                    </span>
+                  )}
+                  {duration && (
+                    <span className="inline-flex items-center gap-2 bg-slate-50 text-slate-550 text-[10px] font-bold px-4 py-2 rounded-full border border-slate-100">
+                      {duration} 
+                      <button onClick={() => setDuration("")} className="hover:text-red-500 transition-colors font-bold ml-1">✕</button>
+                    </span>
+                  )}
                 </div>
               )}
 
               {loading ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} style={{ height: '380px', background: 'var(--cream)', borderRadius: '1.5rem', animation: 'pulse 2s infinite' }} />
+                    <div key={i} className="h-[440px] bg-white border border-gray-100 rounded-[1.8rem] shadow-sm animate-pulse" />
                   ))}
                 </div>
               ) : filtered.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '5rem 0', background: 'var(--cream)', borderRadius: '2rem', border: '2px dashed #e5e7eb' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏜️</div>
-                  <h3 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '1.4rem', marginBottom: '1rem' }}>No packages found</h3>
-                  <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginBottom: '2rem' }}>Try adjusting your filters to find your perfect trip.</p>
-                  <ButtonV2 onClick={clearFilters} variant="orange">Clear All Filters</ButtonV2>
+                <div className="text-center py-20 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm max-w-3xl mx-auto px-6">
+                  <div className="w-20 h-20 bg-[#e8f4fd] rounded-full flex items-center justify-center mx-auto mb-6 text-[#4a90e2]">
+                    <span className="text-3xl">🏜️</span>
+                  </div>
+                  <h3 className="text-2xl font-extrabold text-[#1a3f4e] mb-3 font-['Poppins']">No Packages Found</h3>
+                  <p className="text-gray-400 max-w-md mx-auto mb-8 text-sm leading-relaxed">
+                    We don't have any travel listings matching your selected filters. Try widening your criteria or clearing some filters!
+                  </p>
+                  <button 
+                    onClick={clearFilters}
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-[#ff9500] to-[#ff6b00] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-300 shadow-[0_4px_12px_rgba(255,149,0,0.15)] hover:shadow-[0_6px_20px_rgba(255,149,0,0.3)] hover:-translate-y-0.5"
+                  >
+                    Clear All Filters
+                  </button>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
                   {filtered.map((pkg, i) => (
                     <TourCardV2 key={pkg.id} pkg={pkg} index={i} />
                   ))}

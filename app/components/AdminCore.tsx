@@ -291,17 +291,17 @@ const INIT_PACKAGES: Package[] = [
 
 // ─── BASE UI PRIMITIVES ───────────────────────────────────────────
 export const Badge = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <span className={cls("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border", className)}>{children}</span>
+  <span className={cls("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black border tracking-wider uppercase", className)}>{children}</span>
 );
 export const Inp = ({ className = "", ...p }: React.InputHTMLAttributes<HTMLInputElement>) => (
-  <input className={cls("w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 placeholder:text-gray-400 transition-all", className)} {...p} />
+  <input className={cls("w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#4a90e2] transition-all duration-300 shadow-[inset_0_1px_2px_rgba(74,144,226,0.01)]", className)} {...p} />
 );
 export const TA = ({ className = "", rows = 3, ...p }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
-  <textarea rows={rows} className={cls("w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 placeholder:text-gray-400 transition-all resize-none", className)} {...p} />
+  <textarea rows={rows} className={cls("w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#4a90e2] transition-all duration-300 resize-none shadow-[inset_0_1px_2px_rgba(74,144,226,0.01)]", className)} {...p} />
 );
-export const Sel = ({ options, placeholder, value, onChange, className = "" }: { options: (string | { label: string; value: string })[]; placeholder?: string; value?: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; className?: string }) => (
-  <select value={value || ""} onChange={onChange}
-    className={cls("w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 transition-all cursor-pointer", !value ? "text-gray-400" : "text-gray-900", className)}>
+export const Sel = ({ options, placeholder, value, onChange, className = "", disabled }: { options: (string | { label: string; value: string })[]; placeholder?: string; value?: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; className?: string; disabled?: boolean }) => (
+  <select value={value || ""} onChange={onChange} disabled={disabled}
+    className={cls("w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#4a90e2] transition-all duration-300 cursor-pointer shadow-[inset_0_1px_2px_rgba(74,144,226,0.01)] disabled:opacity-50 disabled:cursor-not-allowed", !value ? "text-slate-400" : "text-slate-850", className)}>
     {placeholder && <option value="" disabled>{placeholder}</option>}
     {options.map(o => {
       const label = typeof o === "string" ? o : o.label;
@@ -311,13 +311,13 @@ export const Sel = ({ options, placeholder, value, onChange, className = "" }: {
   </select>
 );
 export const Card = ({ children, className = "", ...props }: { children: React.ReactNode; className?: string; [key: string]: any }) => (
-  <div className={cls("bg-white rounded-xl border border-gray-100 shadow-sm", className)} {...props}>
+  <div className={cls("bg-white rounded-2xl border border-slate-100/80 shadow-[0_4px_24px_rgba(74,144,226,0.05)] hover:shadow-[0_12px_40px_rgba(74,144,226,0.1)] transition-all duration-300", className)} {...props}>
     {children}
   </div>
 );
 export const FL = ({ children, required, optional, className }: { children: React.ReactNode; required?: boolean; optional?: boolean; className?: string }) => (
-  <label className={cls("block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5", className)}>
-    {children}{required && <span className="text-red-500 ml-0.5">*</span>}{optional && <span className="ml-1 text-gray-400 font-normal normal-case">(optional)</span>}
+  <label className={cls("block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 font-['Poppins',sans-serif]", className)}>
+    {children}{required && <span className="text-red-500 ml-0.5">*</span>}{optional && <span className="ml-1 text-slate-400/80 font-normal normal-case tracking-normal">(optional)</span>}
   </label>
 );
 
@@ -327,20 +327,20 @@ interface BtnProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Btn = ({ variant = "primary", size = "md", className = "", children, ...p }: BtnProps) => {
-  const sz = { xs: "px-2 py-1 text-xs", sm: "px-3 py-1.5 text-xs", md: "px-4 py-2 text-sm", lg: "px-6 py-2.5 text-sm" };
+  const sz = { xs: "px-2.5 py-1 text-[10px]", sm: "px-3.5 py-1.5 text-xs", md: "px-4.5 py-2 text-xs", lg: "px-6 py-3 text-sm" };
   const va = {
-    primary: "bg-blue-950 text-white hover:bg-blue-900 shadow-sm",
-    secondary: "bg-white text-blue-950 border border-blue-950 hover:bg-blue-50",
-    success: "bg-emerald-700 text-white hover:bg-emerald-600 shadow-sm",
-    danger: "bg-red-600 text-white hover:bg-red-500",
-    ghost: "text-gray-500 hover:bg-gray-100 hover:text-gray-700",
-    outline: "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50",
-    soft: "bg-blue-50 text-blue-900 hover:bg-blue-100",
-    dashed: "bg-white text-blue-900 border-2 border-dashed border-blue-300 hover:bg-blue-50",
-    "d-em": "bg-white text-emerald-800 border-2 border-dashed border-emerald-300 hover:bg-emerald-50",
-    "d-am": "bg-white text-amber-800 border-2 border-dashed border-amber-300 hover:bg-amber-50",
+    primary: "bg-gradient-to-r from-[#4a90e2] to-[#2563eb] text-white shadow-[0_4px_14px_rgba(74,144,226,0.22)] hover:shadow-[0_6px_20px_rgba(74,144,226,0.32)] hover:brightness-105",
+    secondary: "bg-white/80 backdrop-blur-sm text-[#2563eb] border border-[#4a90e2]/30 hover:bg-blue-50/50 hover:border-[#4a90e2]/60 shadow-sm",
+    success: "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_4px_14px_rgba(16,185,129,0.22)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.32)] hover:brightness-105",
+    danger: "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-[0_4px_14px_rgba(239,68,68,0.22)] hover:shadow-[0_6px_20px_rgba(239,68,68,0.32)] hover:brightness-105",
+    ghost: "text-slate-500 hover:bg-slate-100 hover:text-slate-700",
+    outline: "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 shadow-sm",
+    soft: "bg-[#e8f4fd] text-[#2563eb] hover:bg-[#d8ecfc] border border-blue-100/50",
+    dashed: "bg-white text-[#2563eb] border-2 border-dashed border-blue-200 hover:bg-blue-50/40",
+    "d-em": "bg-white text-emerald-800 border-2 border-dashed border-emerald-200 hover:bg-emerald-50/40",
+    "d-am": "bg-white text-amber-800 border-2 border-dashed border-amber-200 hover:bg-amber-50/40",
   };
-  return <button className={cls("inline-flex items-center justify-center font-semibold rounded-lg transition-all focus:outline-none disabled:opacity-50 gap-1.5 whitespace-nowrap", sz[size], va[variant], className)} {...p}>{children}</button>;
+  return <button className={cls("inline-flex items-center justify-center font-bold font-['Poppins',sans-serif] uppercase tracking-wider rounded-xl transition-all duration-300 focus:outline-none disabled:opacity-50 gap-1.5 whitespace-nowrap hover:scale-[1.015] active:scale-[0.985] cursor-pointer", sz[size], va[variant], className)} {...p}>{children}</button>;
 };
 
 interface ModalProps {
@@ -355,11 +355,11 @@ export const Modal = ({ open, onClose, title, children, wide = false }: ModalPro
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className={cls("relative bg-white rounded-2xl shadow-2xl w-full overflow-hidden", wide ? "max-w-3xl" : "max-w-2xl")} style={{ maxHeight: "90vh" }}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
-          <h2 className="text-base font-bold text-gray-900">{title}</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-200 text-gray-500 text-lg">✕</button>
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
+      <div className={cls("relative bg-white rounded-3xl border border-slate-100/80 shadow-2xl w-full overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300", wide ? "max-w-3xl" : "max-w-2xl")} style={{ maxHeight: "90vh" }}>
+        <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 bg-slate-50/40">
+          <h2 className="text-xs font-['Poppins',sans-serif] font-black text-slate-800 uppercase tracking-widest">{title}</h2>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors font-bold text-sm">✕</button>
         </div>
         <div className="overflow-y-auto" style={{ maxHeight: "calc(90vh - 65px)" }}>{children}</div>
       </div>
@@ -439,7 +439,7 @@ export const ImageUploader = ({ images = [], onAdd, onRemove, label = "Images" }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2.5">
         <FL>{label}</FL>
         <Btn variant="outline" size="xs" onClick={() => ref.current?.click()}>
           + Add
@@ -458,25 +458,25 @@ export const ImageUploader = ({ images = [], onAdd, onRemove, label = "Images" }
       {images.length === 0 ? (
         <div
           onClick={() => ref.current?.click()}
-          className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-all"
+          className="border-2 border-dashed border-blue-200/50 bg-[#e8f4fd]/10 hover:bg-[#e8f4fd]/20 hover:border-[#4a90e2]/50 rounded-2xl p-6 text-center cursor-pointer transition-all duration-300"
         >
-          <p className="text-xs text-gray-400">Click to upload images</p>
+          <p className="text-[10px] font-bold text-slate-400 font-['Poppins',sans-serif] uppercase tracking-wider">Click to upload assets</p>
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-3">
           {images.map((url, i) => (
             <div
               key={i}
-              className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100"
+              className="relative group aspect-square rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 shadow-sm transition-all duration-300 hover:scale-[1.02]"
             >
               <img src={url} className="w-full h-full object-cover" />
 
               <button
                 onClick={() => onRemove(i)}
-                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]"
               >
-                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white">
-                  <Ic.X />
+                <div className="w-7 h-7 bg-rose-600 rounded-full flex items-center justify-center text-white shadow-md hover:bg-rose-500 hover:scale-110 transition-transform">
+                  <Ic.X className="w-4 h-4" />
                 </div>
               </button>
             </div>
@@ -484,7 +484,7 @@ export const ImageUploader = ({ images = [], onAdd, onRemove, label = "Images" }
 
           <div
             onClick={() => ref.current?.click()}
-            className="aspect-square border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-300 transition-all text-gray-400"
+            className="aspect-square border-2 border-dashed border-blue-200/50 bg-[#e8f4fd]/5 rounded-2xl flex items-center justify-center cursor-pointer hover:border-[#4a90e2] hover:bg-[#e8f4fd]/20 transition-all duration-300 text-[#4a90e2]"
           >
             <Ic.Plus />
           </div>
@@ -2757,28 +2757,28 @@ export const CouponsPage = () => {
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="border-b border-gray-100 bg-gray-50/80">
+            <thead><tr className="border-b border-slate-100 bg-slate-50/50">
               {["Code", "Discount", "Description", "Min Order", "Uses", "Expiry", "Status", "Actions"].map(h => (
-                <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
+                <th key={h} className="text-left px-5 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-['Poppins',sans-serif]">{h}</th>
               ))}
             </tr></thead>
-            <tbody className="divide-y divide-gray-50">
-              {filtered.length === 0 && <tr><td colSpan={8} className="text-center py-12 text-gray-400 text-sm">No coupons yet. Click &quot;New Coupon&quot; to add one.</td></tr>}
+            <tbody className="divide-y divide-slate-50">
+              {filtered.length === 0 && <tr><td colSpan={8} className="text-center py-12 text-slate-400 text-sm font-semibold tracking-wide">No coupons yet. Click &quot;New Coupon&quot; to add one.</td></tr>}
 
               {filtered.map(c => {
                 const st = getStatus(c);
                 return (
-                  <tr key={c._id} className="hover:bg-blue-50/20 transition-colors">
-                    <td className="px-4 py-3.5"><span className="font-mono font-bold text-blue-900 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg text-xs tracking-widest">{c.code}</span></td>
-                    <td className="px-4 py-3.5"><span className="font-bold text-gray-900">{c.discountType === "percentage" ? `${c.discountValue}%` : `₹${c.discountValue}`}</span><span className="ml-1.5 text-xs text-gray-400 capitalize">{c.discountType}</span></td>
-                    <td className="px-4 py-3.5 text-xs text-gray-500 max-w-[160px] truncate">{c.description || "—"}</td>
-                    <td className="px-4 py-3.5 text-xs text-gray-600">{c.minOrderValue ? `₹${c.minOrderValue}` : "—"}</td>
-                    <td className="px-4 py-3.5 text-xs text-gray-600"><span className="font-semibold">{c.usedCount || 0}</span>{c.maxUses ? <span className="text-gray-400"> / {c.maxUses}</span> : <span className="text-gray-400"> / ∞</span>}</td>
-                    <td className="px-4 py-3.5 text-xs text-gray-600">{c.expiryDate ? new Date(c.expiryDate).toLocaleDateString("en-IN") : "No expiry"}</td>
-                    <td className="px-4 py-3.5"><Badge className={st.cls}>{st.label}</Badge></td>
-                    <td className="px-4 py-3.5"><div className="flex items-center gap-0.5">
-                      <button onClick={() => openEdit(c)} className="p-1.5 text-emerald-700 hover:bg-emerald-100 rounded-lg"><Ic.Edit /></button>
-                      <button onClick={() => handleDelete(c._id)} className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg"><Ic.Trash /></button>
+                  <tr key={c._id} className="hover:bg-blue-50/20 transition-all duration-300">
+                    <td className="px-5 py-4"><span className="font-mono font-black text-[#2563eb] bg-[#e8f4fd]/80 border border-blue-200/50 px-3 py-1.5 rounded-xl text-xs tracking-widest">{c.code}</span></td>
+                    <td className="px-5 py-4"><span className="font-black text-slate-800 font-['Poppins',sans-serif]">{c.discountType === "percentage" ? `${c.discountValue}%` : `₹${c.discountValue}`}</span><span className="ml-1.5 text-[10px] text-slate-400 font-black uppercase tracking-wider">{c.discountType}</span></td>
+                    <td className="px-5 py-4 text-xs text-slate-500 font-medium max-w-[160px] truncate">{c.description || "—"}</td>
+                    <td className="px-5 py-4 text-xs text-slate-500 font-medium">{c.minOrderValue ? `₹${c.minOrderValue}` : "—"}</td>
+                    <td className="px-5 py-4 text-xs text-slate-500 font-medium"><span className="font-bold text-slate-700">{c.usedCount || 0}</span>{c.maxUses ? <span className="text-slate-400 font-normal"> / {c.maxUses}</span> : <span className="text-slate-400 font-normal"> / ∞</span>}</td>
+                    <td className="px-5 py-4 text-xs text-slate-500 font-medium">{c.expiryDate ? new Date(c.expiryDate).toLocaleDateString("en-IN") : "No expiry"}</td>
+                    <td className="px-5 py-4"><Badge className={cls(st.cls, "rounded-xl font-bold")}>{st.label}</Badge></td>
+                    <td className="px-5 py-4"><div className="flex items-center gap-1">
+                      <button onClick={() => openEdit(c)} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all hover:scale-105" title="Edit"><Ic.Edit className="w-4 h-4" /></button>
+                      <button onClick={() => handleDelete(c._id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all hover:scale-105" title="Delete"><Ic.Trash className="w-4 h-4" /></button>
                     </div></td>
                   </tr>
                 );
@@ -2786,8 +2786,8 @@ export const CouponsPage = () => {
             </tbody>
           </table>
         </div>
-        <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/60 rounded-b-xl">
-          <p className="text-xs text-gray-500">{filtered.length} of {coupons.length} coupons · {coupons.filter(c => c.isActive).length} active</p>
+        <div className="px-5 py-4 border-t border-slate-100 bg-slate-50/40 rounded-b-2xl flex items-center justify-between">
+          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest font-['Poppins',sans-serif]">{filtered.length} of {coupons.length} coupons · {coupons.filter(c => c.isActive).length} active</p>
         </div>
       </Card>
       <Modal open={!!modal} onClose={() => setModal(null)} title={modal?.mode === "create" ? "New Coupon" : "Edit Coupon"}>
@@ -3033,54 +3033,54 @@ export const PackagesListing = ({ setPage, setSelectedId, onDuplicate }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/80">
+              <tr className="border-b border-slate-100 bg-slate-50/50">
                 {["Package", "Duration", "Style", "Exclusivity", "Itinerary Stats", "Price", "Actions"].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
+                  <th key={h} className="text-left px-5 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-['Poppins',sans-serif]">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filtered.length === 0 && <tr><td colSpan={7} className="text-center py-12 text-gray-400 text-sm">No packages found</td></tr>}
+            <tbody className="divide-y divide-slate-50">
+              {filtered.length === 0 && <tr><td colSpan={7} className="text-center py-12 text-slate-400 text-sm font-semibold tracking-wide">No packages found</td></tr>}
               {filtered.map((pkg, index) => {
                 const totalH = pkg.itinerary?.reduce((s, d) => s + (d.hotelStays?.length || 0), 0) || 0;
                 const totalA = pkg.itinerary?.reduce((s, d) => s + (d.activities?.length || 0), 0) || 0;
                 const totalT = pkg.itinerary?.reduce((s, d) => s + (d.transfers?.length || 0), 0) || 0;
                 const linked = pkg.itinerary?.reduce((s, d) => s + (d.activities?.filter(a => a.activityRef).length || 0) + (d.hotelStays?.filter(h => h.hotelRef).length || 0), 0) || 0;
                 return (
-                  <tr key={`${pkg.id}-${index}`} className="hover:bg-blue-50/20 transition-colors">
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-900 flex-shrink-0"><Ic.Globe /></div>
+                  <tr key={`${pkg.id}-${index}`} className="hover:bg-blue-50/20 transition-all duration-300">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-2xl bg-[#e8f4fd] border border-blue-100/50 flex items-center justify-center text-[#2563eb] flex-shrink-0 shadow-sm"><Ic.Globe className="w-5 h-5" /></div>
                         <div>
-                          <p className="font-bold text-gray-900 text-sm leading-tight">{pkg.title || pkg.destination}</p>
-                          <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5"><Ic.MapPin />{pkg.destination}</p>
+                          <p className="font-extrabold text-slate-850 text-sm leading-snug">{pkg.title || pkg.destination}</p>
+                          <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-1 uppercase tracking-wider"><Ic.MapPin className="text-[#ff9500] w-3 h-3" />{pkg.destination}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-xs text-gray-600 whitespace-nowrap">{pkg.tripDuration}</td>
-                    <td className="px-4 py-3.5 text-xs text-gray-600">{pkg.travelStyle || "—"}</td>
-                    <td className="px-4 py-3.5"><Badge className="bg-violet-50 text-violet-700 border-violet-200">{pkg.exclusivityLevel || "—"}</Badge></td>
-                    <td className="px-4 py-3.5">
-                      <div className="text-xs text-gray-500 space-y-0.5">
+                    <td className="px-5 py-4 text-xs text-slate-500 font-semibold whitespace-nowrap">{pkg.tripDuration}</td>
+                    <td className="px-5 py-4 text-xs text-slate-500 font-semibold">{pkg.travelStyle || "—"}</td>
+                    <td className="px-5 py-4"><Badge className="bg-violet-50 text-violet-700 border-violet-200/50 rounded-xl font-bold">{pkg.exclusivityLevel || "—"}</Badge></td>
+                    <td className="px-5 py-4">
+                      <div className="text-xs text-slate-500 font-medium space-y-1">
                         <div className="flex items-center gap-3">
-                          <span className="flex items-center gap-1"><Ic.Hotel />{totalH}</span>
-                          <span className="flex items-center gap-1"><Ic.Activity />{totalA}</span>
-                          <span className="flex items-center gap-1"><Ic.Car />{totalT}</span>
+                          <span className="flex items-center gap-1"><Ic.Hotel className="w-3.5 h-3.5 text-slate-400" />{totalH}</span>
+                          <span className="flex items-center gap-1"><Ic.Activity className="w-3.5 h-3.5 text-slate-400" />{totalA}</span>
+                          <span className="flex items-center gap-1"><Ic.Car className="w-3.5 h-3.5 text-slate-400" />{totalT}</span>
                         </div>
-                        {linked > 0 && <div className="flex items-center gap-1 text-emerald-600 font-semibold"><Ic.Sync />{linked} master-linked</div>}
+                        {linked > 0 && <div className="flex items-center gap-1 text-emerald-600 font-bold text-[10px]"><Ic.Sync className="w-3 h-3" />{linked} master-linked</div>}
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 font-bold text-blue-900 whitespace-nowrap">
+                    <td className="px-5 py-4 font-black text-slate-800 whitespace-nowrap font-['Poppins',sans-serif]">
                       {getCurrSym(pkg.price?.currency)}{Number(pkg.price?.amount || 0).toLocaleString("en-IN")}
-                      <span className="text-xs text-gray-400 font-normal ml-1">{pkg.price?.currency}</span>
+                      <span className="text-[10px] text-slate-400 font-black ml-1 uppercase tracking-wider">{pkg.price?.currency}</span>
                     </td>
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-0.5">
-                        <button onClick={() => _pkgRouter.push('/admin/packages/view/' + pkg.id)} className="p-1.5 text-blue-700 hover:bg-blue-100 rounded-lg transition-colors" title="View"><Ic.Eye /></button>
-                        <button onClick={() => _pkgRouter.push('/admin/packages/edit/' + pkg.id)} className="p-1.5 text-emerald-700 hover:bg-emerald-100 rounded-lg transition-colors" title="Edit"><Ic.Edit /></button>
-                        <button onClick={() => onDuplicate(pkg)} className="p-1.5 text-amber-600 hover:bg-amber-100 rounded-lg transition-colors flex items-center gap-1" title="Duplicate Package"><Ic.Package /></button>
-                        <button onClick={async () => { if (!window.confirm("Delete this package?")) return; dispatch(deletePackage(pkg.id)).then((res) => { if (!deletePackage.fulfilled.match(res)) alert("Delete failed: " + (res.error?.message || "Unknown error")); }); }} className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition-colors" title="Delete"><Ic.Trash /></button>
-                        <button onClick={() => setBookingModal(pkg)} className="ml-2 px-2.5 py-1 text-xs font-bold text-white bg-blue-900 hover:bg-blue-800 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"><Ic.Plus />Book</button>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => _pkgRouter.push('/admin/packages/view/' + pkg.id)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all hover:scale-105" title="View"><Ic.Eye className="w-4 h-4" /></button>
+                        <button onClick={() => _pkgRouter.push('/admin/packages/edit/' + pkg.id)} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all hover:scale-105" title="Edit"><Ic.Edit className="w-4 h-4" /></button>
+                        <button onClick={() => onDuplicate(pkg)} className="p-2 text-amber-600 hover:bg-amber-50 rounded-xl transition-all hover:scale-105 flex items-center gap-1" title="Duplicate Package"><Ic.Package className="w-4 h-4" /></button>
+                        <button onClick={async () => { if (!window.confirm("Delete this package?")) return; dispatch(deletePackage(pkg.id)).then((res) => { if (!deletePackage.fulfilled.match(res)) alert("Delete failed: " + (res.error?.message || "Unknown error")); }); }} className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all hover:scale-105" title="Delete"><Ic.Trash className="w-4 h-4" /></button>
+                        <button onClick={() => setBookingModal(pkg)} className="ml-2 px-3 py-1.5 text-[10px] font-black text-white bg-gradient-to-r from-orange-400 to-amber-500 hover:brightness-105 rounded-xl shadow-md transition-all hover:scale-105 uppercase tracking-wider flex items-center gap-1"><Ic.Plus className="w-3.5 h-3.5" />Book</button>
                       </div>
                     </td>
                   </tr>
@@ -3089,8 +3089,8 @@ export const PackagesListing = ({ setPage, setSelectedId, onDuplicate }) => {
             </tbody>
           </table>
         </div>
-        <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/60 rounded-b-xl">
-          <p className="text-xs text-gray-500">{filtered.length} of {packages.length} packages</p>
+        <div className="px-5 py-4 border-t border-slate-100 bg-slate-50/40 rounded-b-2xl">
+          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest font-['Poppins',sans-serif]">{filtered.length} of {packages.length} packages</p>
         </div>
       </Card>
 
@@ -3331,7 +3331,6 @@ const BookingFormModal = ({ pkg, onClose }: { pkg: Package; onClose: () => void 
 };
 
 
-// ─── DASHBOARD ────────────────────────────────────────────────────
 export const Dashboard = ({ setPage, onOpenDuplicateModal }: any) => {
   const { packages } = useAppSelector(state => state.packages);
   const { masterActivities } = useAppSelector(state => state.activities);
@@ -3342,54 +3341,53 @@ export const Dashboard = ({ setPage, onOpenDuplicateModal }: any) => {
   const unlinkedActs = packages.reduce((s, p) => s + (p.itinerary?.reduce((sd, d) => sd + (d.activities?.filter(a => !a.activityRef).length || 0), 0) || 0), 0);
 
   const stats = [
-    { label: "Packages", value: packages.length, sub: "In catalog", color: "bg-blue-950", icon: <Ic.Package /> },
-    { label: "Itinerary Days", value: totalDays, sub: "Total days planned", color: "bg-emerald-700", icon: <Ic.Summary /> },
-    { label: "Master Activities", value: masterActivities.length, sub: `${linkedActs} linked in pkgs`, color: "bg-violet-700", icon: <Ic.Activity /> },
-    { label: "Master Hotels", value: masterHotels.length, sub: `${linkedHotels} linked in pkgs`, color: "bg-amber-600", icon: <Ic.Hotel /> },
+    { label: "Packages", value: packages.length, sub: "In catalog", color: "bg-gradient-to-br from-[#4a90e2] to-[#2563eb] shadow-[0_4px_16px_rgba(74,144,226,0.22)]", icon: <Ic.Package /> },
+    { label: "Itinerary Days", value: totalDays, sub: "Total days planned", color: "bg-gradient-to-br from-emerald-400 to-teal-600 shadow-[0_4px_16px_rgba(16,185,129,0.22)]", icon: <Ic.Summary /> },
+    { label: "Master Activities", value: masterActivities.length, sub: `${linkedActs} linked in pkgs`, color: "bg-gradient-to-br from-violet-400 to-indigo-600 shadow-[0_4px_16px_rgba(139,92,246,0.22)]", icon: <Ic.Activity /> },
+    { label: "Master Hotels", value: masterHotels.length, sub: `${linkedHotels} linked in pkgs`, color: "bg-gradient-to-br from-orange-400 to-[#ff6b00] shadow-[0_4px_16px_rgba(255,149,0,0.22)]", icon: <Ic.Hotel /> },
   ];
 
   return (
     <div className="space-y-6">
 
-
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-5">
         {stats.map(({ label, value, sub, color, icon }) => (
-          <Card key={label} className="p-5">
+          <Card key={label} className="p-6 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 cursor-pointer">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{label}</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1 leading-none">{value}</p>
-                <p className="text-xs text-gray-400 mt-2">{sub}</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-['Poppins',sans-serif]">{label}</p>
+                <p className="text-3xl font-black text-slate-800 font-['Poppins',sans-serif] mt-1.5 leading-none">{value}</p>
+                <p className="text-xs text-slate-400 mt-2 font-medium">{sub}</p>
               </div>
-              <div className={cls("w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0", color)}>{icon}</div>
+              <div className={cls("w-11 h-11 rounded-2xl flex items-center justify-center text-white flex-shrink-0 transition-transform duration-300 group-hover:scale-110", color)}>{icon}</div>
             </div>
           </Card>
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2">
-          <Card className="p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-gray-800">Recent Packages</h3>
-              <Btn variant="ghost" size="sm" onClick={() => setPage("packages")}>View all →</Btn>
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-xs font-['Poppins',sans-serif] font-black text-slate-800 uppercase tracking-widest">Recent Packages</h3>
+              <Btn variant="ghost" size="xs" onClick={() => setPage("packages")} className="text-[#2563eb] hover:bg-blue-50/50">View all →</Btn>
             </div>
             <div className="space-y-3">
               {packages.slice(0, 4).map((pkg, index) => {
                 const linked = pkg.itinerary.reduce((s, d) => s + d.activities.filter(a => a.activityRef).length + d.hotelStays.filter(h => h.hotelRef).length, 0);
                 return (
-                  <div key={`${pkg.id}-${index}`} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-900"><Ic.Globe /></div>
+                  <div key={`${pkg.id}-${index}`} className="flex items-center justify-between p-3 border border-slate-50/50 hover:border-slate-100 hover:bg-slate-50/40 rounded-2xl transition-all duration-300">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-2xl bg-[#e8f4fd] border border-blue-100/50 flex items-center justify-center text-[#2563eb]"><Ic.Globe /></div>
                       <div>
-                        <p className="text-sm font-bold text-gray-900">{pkg.title || pkg.destination}</p>
-                        <p className="text-xs text-gray-400">{pkg.tripDuration} · {linked} master-linked item{linked !== 1 ? "s" : ""}</p>
+                        <p className="text-sm font-extrabold text-slate-800 leading-snug">{pkg.title || pkg.destination}</p>
+                        <p className="text-xs text-slate-400 mt-0.5 font-medium">{pkg.tripDuration} · <span className="font-semibold text-slate-500">{linked}</span> linked item{linked !== 1 ? "s" : ""}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-blue-900">{getCurrSym(pkg.price?.currency)}{Number(pkg.price?.amount || 0).toLocaleString("en-IN")}</p>
-                      <p className="text-xs text-gray-400">{pkg.price?.currency}</p>
+                      <p className="text-sm font-black text-[#2563eb] font-['Poppins',sans-serif] leading-tight">{getCurrSym(pkg.price?.currency)}{Number(pkg.price?.amount || 0).toLocaleString("en-IN")}</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{pkg.price?.currency}</p>
                     </div>
                   </div>
                 );
@@ -3398,23 +3396,19 @@ export const Dashboard = ({ setPage, onOpenDuplicateModal }: any) => {
           </Card>
         </div>
 
-        <Card className="p-5">
-          <h3 className="text-sm font-bold text-gray-800 mb-4">Quick Actions</h3>
-          <div className="space-y-2.5">
-            <Btn variant="secondary" className="w-full" onClick={() => setPage("master-activities")}><Ic.Activity />Manage Activities</Btn>
-            <Btn variant="secondary" className="w-full" onClick={() => setPage("master-hotels")}><Ic.Hotel />Manage Hotels</Btn>
-            <Btn variant="secondary" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50" onClick={onOpenDuplicateModal}><Ic.Package />Duplicate Package</Btn>
-            <div className="pt-2">
-              <Btn variant="dashed" className="w-full border-blue-300 text-blue-700 hover:bg-blue-50" onClick={() => (window as any).handleGlobalSeed()}><Ic.Sync />Seed Demo Data (Safe)</Btn>
-              <p className="text-[10px] text-blue-500 mt-1 text-center font-medium">✨ This will NOT delete existing data</p>
-            </div>
+        <Card className="p-6">
+          <h3 className="text-xs font-['Poppins',sans-serif] font-black text-slate-800 uppercase tracking-widest mb-5">Quick Actions</h3>
+          <div className="space-y-3">
+            <Btn variant="secondary" className="w-full justify-start py-3 px-4" onClick={() => setPage("master-activities")}><Ic.Activity />Manage Activities</Btn>
+            <Btn variant="secondary" className="w-full justify-start py-3 px-4" onClick={() => setPage("master-hotels")}><Ic.Hotel />Manage Hotels</Btn>
+            <Btn variant="soft" className="w-full justify-start py-3 px-4 text-[#2563eb] border-blue-100/80" onClick={onOpenDuplicateModal}><Ic.Package />Duplicate Package</Btn>
           </div>
-          <div className="mt-5 pt-4 border-t border-gray-100">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Catalog Health</p>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between text-gray-600"><span>Master activities linked</span><span className="font-bold text-emerald-700">{linkedActs}</span></div>
-              <div className="flex justify-between text-gray-600"><span>Master hotels linked</span><span className="font-bold text-emerald-700">{linkedHotels}</span></div>
-              <div className="flex justify-between text-gray-600"><span>Unlinked activities</span><span className={cls("font-bold", unlinkedActs > 0 ? "text-amber-600" : "text-gray-400")}>{unlinkedActs}</span></div>
+          <div className="mt-6 pt-5 border-t border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-['Poppins',sans-serif] mb-3.5">Catalog Health</p>
+            <div className="space-y-2.5 text-xs font-medium">
+              <div className="flex justify-between text-slate-500 py-1.5 border-b border-slate-50 last:border-0"><span>Master activities linked</span><span className="font-bold text-emerald-600">{linkedActs}</span></div>
+              <div className="flex justify-between text-slate-500 py-1.5 border-b border-slate-50 last:border-0"><span>Master hotels linked</span><span className="font-bold text-emerald-700">{linkedHotels}</span></div>
+              <div className="flex justify-between text-slate-500 py-1.5 border-b border-slate-50 last:border-0"><span>Unlinked activities</span><span className={cls("font-bold", unlinkedActs > 0 ? "text-amber-500" : "text-slate-400")}>{unlinkedActs}</span></div>
             </div>
           </div>
         </Card>
@@ -3459,64 +3453,98 @@ export const Sidebar = ({ page, setPage, counts }) => {
   ];
   const isActive = (key) => key === "dashboard" ? page === "dashboard" : (key === "packages" ? ["packages", "create", "edit", "view"].includes(page) : page === key);
   return (
-    <aside className="fixed left-0 top-0 h-screen w-60 bg-blue-950 text-white flex flex-col z-30 shadow-xl">
-      <div className="px-5 py-5 border-b border-white/10">
+    <aside className="fixed left-0 top-0 h-screen w-60 bg-slate-950 text-white flex flex-col z-30 border-r border-slate-900/60 shadow-[0_0_40px_rgba(15,23,42,0.15)]">
+      <div className="px-5 py-5 border-b border-slate-900/80">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shadow-lg"><Ic.Globe /></div>
-          <div><div className="font-bold text-sm tracking-wide">Stay Vacation</div></div>
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ff9500] to-[#ff6b00] flex items-center justify-center shadow-[0_4px_16px_rgba(255,149,0,0.25)]"><Ic.Globe /></div>
+          <div>
+            <div className="font-['Poppins',sans-serif] font-black text-sm tracking-tight leading-none uppercase">
+              <span className="text-white">Stay</span>
+              <span className="bg-gradient-to-r from-orange-400 to-amber-500 bg-clip-text text-transparent ml-0.5">Vacation</span>
+            </div>
+            <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold mt-1.5">Admin Portal</p>
+          </div>
         </div>
       </div>
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        <div className="space-y-0.5">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin">
+        <div className="space-y-1">
           {nav.filter(n => n.group === "main").map(item => (
             <button key={item.key} onClick={() => setPage(item.key)}
-              className={cls("w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all", isActive(item.key) ? "bg-white/15 text-white" : "text-blue-300 hover:bg-white/8 hover:text-white")}>
-              {item.icon}<span className="flex-1 text-left">{item.label}</span>
-              {item.badge !== undefined && <span className={cls("text-xs px-2 py-0.5 rounded-full font-bold", isActive(item.key) ? "bg-white/20 text-white" : "bg-blue-900 text-blue-300")}>{item.badge}</span>}
+              className={cls(
+                "w-full flex items-center gap-3 px-3.5 py-3.5 rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.01] relative",
+                isActive(item.key) 
+                  ? "bg-gradient-to-r from-[#4a90e2]/15 to-[#2563eb]/10 text-white border border-[#4a90e2]/30 shadow-[0_4px_20px_rgba(74,144,226,0.12)] after:content-[''] after:absolute after:right-3.5 after:w-1.5 after:h-1.5 after:bg-[#4a90e2] after:rounded-full after:animate-pulse" 
+                  : "text-slate-400 hover:bg-slate-900/50 hover:text-white"
+              )}>
+              <span className={cls("transition-colors", isActive(item.key) ? "text-[#87CEEB]" : "text-slate-400")}>{item.icon}</span>
+              <span className="flex-1 text-left tracking-wide font-['Poppins',sans-serif]">{item.label}</span>
+              {item.badge !== undefined && (
+                <span className={cls(
+                  "text-[10px] px-2 py-0.5 rounded-full font-extrabold font-mono",
+                  isActive(item.key) ? "bg-[#4a90e2]/30 text-white border border-[#4a90e2]/40" : "bg-slate-900 text-slate-500 border border-slate-800"
+                )}>{item.badge}</span>
+              )}
             </button>
           ))}
         </div>
-        <p className="text-xs font-bold text-blue-500 uppercase tracking-widest px-3 pt-4 pb-2">Master Catalog</p>
-        <div className="space-y-0.5">
+        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest px-3 pt-6 pb-2.5">Master Catalog</p>
+        <div className="space-y-1">
           {nav.filter(n => n.group === "master").map(item => (
             <button key={item.key} onClick={() => setPage(item.key)}
-              className={cls("w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all", isActive(item.key) ? "bg-white/15 text-white" : "text-blue-300 hover:bg-white/8 hover:text-white")}>
-              {item.icon}<span className="flex-1 text-left">{item.label}</span>
-              {item.badge !== undefined && <span className={cls("text-xs px-2 py-0.5 rounded-full font-bold", isActive(item.key) ? "bg-white/20 text-white" : "bg-blue-900 text-blue-300")}>{item.badge}</span>}
+              className={cls(
+                "w-full flex items-center gap-3 px-3.5 py-3.5 rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.01] relative",
+                isActive(item.key) 
+                  ? "bg-gradient-to-r from-[#4a90e2]/15 to-[#2563eb]/10 text-white border border-[#4a90e2]/30 shadow-[0_4px_20px_rgba(74,144,226,0.12)] after:content-[''] after:absolute after:right-3.5 after:w-1.5 after:h-1.5 after:bg-[#4a90e2] after:rounded-full after:animate-pulse" 
+                  : "text-slate-400 hover:bg-slate-900/50 hover:text-white"
+              )}>
+              <span className={cls("transition-colors", isActive(item.key) ? "text-[#87CEEB]" : "text-slate-400")}>{item.icon}</span>
+              <span className="flex-1 text-left tracking-wide font-['Poppins',sans-serif]">{item.label}</span>
+              {item.badge !== undefined && (
+                <span className={cls(
+                  "text-[10px] px-2 py-0.5 rounded-full font-extrabold font-mono",
+                  isActive(item.key) ? "bg-[#4a90e2]/30 text-white border border-[#4a90e2]/40" : "bg-slate-900 text-slate-500 border border-slate-800"
+                )}>{item.badge}</span>
+              )}
             </button>
           ))}
         </div>
       </nav>
 
-      <div className="px-4 py-3 border-t border-white/10 bg-black/10">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold">
+      <div className="px-4 py-4 border-t border-slate-900/80 bg-slate-950/40">
+        <div className="flex items-center gap-3 mb-3.5">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4a90e2] to-[#2563eb] flex items-center justify-center text-[10px] font-black text-white shadow-md border border-white/10">
             {user?.email?.[0]?.toUpperCase() || "A"}
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-bold text-white truncate">{user?.email || "Admin User"}</p>
-            <p className="text-[9px] text-blue-400 uppercase tracking-tighter">Administrator</p>
+            <p className="text-[10px] font-extrabold text-slate-200 truncate">{user?.email || "Admin User"}</p>
+            <p className="text-[8px] text-amber-500 uppercase tracking-widest font-black mt-0.5">Administrator</p>
           </div>
         </div>
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] font-bold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all uppercase tracking-wider"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[10px] font-black text-rose-400 bg-rose-500/5 border border-rose-500/10 hover:bg-rose-500/15 hover:text-rose-300 transition-all uppercase tracking-wider"
         >
           <Ic.Logout className="w-3.5 h-3.5" />
           Sign Out
         </button>
       </div>
-      <div className="px-5 py-3 border-t border-white/5 opacity-40"><p className="text-[9px] text-blue-600">© 2025 Stay Vacation</p></div>
+      <div className="px-5 py-3 border-t border-slate-900/80 opacity-40"><p className="text-[8px] text-slate-600 font-bold tracking-wide">© 2026 Stay Vacation</p></div>
     </aside>
   );
 };
 
 // ─── TOPBAR ───────────────────────────────────────────────────────
 export const Topbar = ({ title, subtitle }) => (
-  <header className="fixed top-0 left-60 right-0 h-16 bg-white border-b border-gray-100 flex items-center px-6 z-20 shadow-sm">
+  <header className="fixed top-0 left-60 right-0 h-16 bg-white/70 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 z-20 shadow-[0_2px_12px_rgba(74,144,226,0.02)]">
     <div>
-      <h1 className="text-base font-bold text-gray-900 leading-tight">{title}</h1>
-      {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
+      <h1 className="text-sm font-['Poppins',sans-serif] font-black text-slate-900 uppercase tracking-wider">{title}</h1>
+      {subtitle && <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{subtitle}</p>}
+    </div>
+    <div className="flex items-center gap-2.5">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/50 text-[#ff6b00] rounded-full text-[9px] font-black tracking-wider uppercase">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#ff9500] animate-ping" />
+        Live Manager
+      </span>
     </div>
   </header>
 );

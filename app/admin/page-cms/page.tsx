@@ -10,6 +10,7 @@ export default function PageCmsPage() {
 
   const pages = [
     { id: "contact-page", name: "Contact Page", lastModified: "2024-04-20" },
+    { id: "featured-packages", name: "Homepage Featured Packages", lastModified: "2026-05-19" },
   ];
 
   return (

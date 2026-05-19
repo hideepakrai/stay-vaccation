@@ -83,12 +83,13 @@ export default async function HomePage() {
   // Find the sections in settings
   const heroSection = settings?.sections?.find((s: any) => s.type === "hero-section" || s.adminTitle?.toLowerCase().includes("hero"));
   const faqSection = settings?.sections?.find((s: any) => s.type === "faq-section" || s.adminTitle?.toLowerCase().includes("faq"));
+  const destinationsSection = settings?.sections?.find((s: any) => s.type === "destinations-section" || s.adminTitle?.toLowerCase().includes("destinations"));
 
   return (
     <LayoutV2>
       <HeroSection section={heroSection} destinations={v2Destinations} />
 
-      <DestinationsSectionV2 destinations={v2Destinations} />
+      <DestinationsSectionV2 section={destinationsSection} destinations={v2Destinations} />
       <FeaturedToursSectionV2 packages={v2Packages} />
       <WhyUsSectionV2 />
       <PromoBannerV2 />
