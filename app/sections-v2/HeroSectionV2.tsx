@@ -56,11 +56,6 @@ const HeroSectionV2 = () => {
           />
         ))}
       </div>
-
-      <div className="hero-scroll">
-        <div className="hero-scroll-line"></div>
-        SCROLL
-      </div>
     </section>
   );
 };

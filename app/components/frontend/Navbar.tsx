@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import AuthModal from "./AuthModal";
 import CurrencyModal from "./CurrencyModal";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { logout } from "@/app/store/features/auth/authThunks";
@@ -26,7 +25,6 @@ export default function Navbar() {
   const { settings } = useAppSelector((state) => state.businessSettings);
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
   const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false);
   const selectedCurrency = useAppSelector((state) => state.currency.selectedCurrency);
   const pathname = usePathname();
@@ -182,9 +180,9 @@ export default function Navbar() {
                       )}
                     </div>
                   ) : (
-                    <button
+                    <Link
                       id="navbar-login-btn"
-                      onClick={() => setModalOpen(true)}
+                      href="/login"
                       className="hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
                       style={{
                         background: "rgba(255,255,255,0.10)",
@@ -196,7 +194,7 @@ export default function Navbar() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                       Login
-                    </button>
+                    </Link>
                   )}
                 </>
               )}
@@ -218,11 +216,6 @@ export default function Navbar() {
       {userMenuOpen && (
         <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
       )}
-
-      <AuthModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
 
       <CurrencyModal
         isOpen={currencyMenuOpen}
@@ -287,11 +280,11 @@ export default function Navbar() {
                     </button>
                   </div>
                 ) : (
-                  <button onClick={() => { setMobileOpen(false); setModalOpen(true); }}
-                    className="flex items-center justify-center w-full px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all"
+                  <Link href="/login" onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-center w-full px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all text-center"
                     style={{ background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.18)" }}>
                     Login / Sign Up
-                  </button>
+                  </Link>
                 )
               )}
             </div>

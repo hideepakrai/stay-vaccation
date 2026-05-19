@@ -3,6 +3,7 @@ import React from "react";
 import { Sidebar, Topbar } from "./AdminCore";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppSelector } from "@/app/store/hooks";
+import "../globals-v2.css";
 
 export default function AdminLayoutWrapper({ children, section: propSection }: { children: React.ReactNode; section?: string }) {
   const pathname = usePathname();
@@ -122,7 +123,7 @@ export default function AdminLayoutWrapper({ children, section: propSection }: {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/80">
+    <div className="min-h-screen bg-[#f8f9fa] font-['Plus_Jakarta_Sans',sans-serif] text-[#1a1a2e] antialiased">
       <Sidebar page={section} setPage={setPage} counts={counts} />
       <Topbar title={meta.title} subtitle={meta.subtitle} />
       <main className="ml-60 pt-16 min-h-screen">

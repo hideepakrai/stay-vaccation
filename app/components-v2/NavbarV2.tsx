@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import AuthModal from "../components/frontend/AuthModal";
 import CurrencyModal from "../components/frontend/CurrencyModal";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { logout } from "@/app/store/features/auth/authThunks";
@@ -199,9 +198,9 @@ export default function NavbarV2() {
                       )}
                     </div>
                   ) : (
-                    <button
+                    <Link
                       id="navbar-login-btn"
-                      onClick={() => setModalOpen(true)}
+                      href="/login"
                       className={`hidden md:flex items-center gap-2 px-6 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] transition-all duration-300 border ${
                         scrolled 
                           ? "bg-white text-[#1a1a2e] border-gray-200 hover:border-[#ff9500] hover:text-[#ff9500]" 
@@ -210,7 +209,7 @@ export default function NavbarV2() {
                     >
                       <LucideIcon name="User" size={14} />
                       Login
-                    </button>
+                    </Link>
                   )}
                 </>
               )}
@@ -236,11 +235,6 @@ export default function NavbarV2() {
       {userMenuOpen && (
         <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
       )}
-
-      <AuthModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
 
       <CurrencyModal
         isOpen={currencyMenuOpen}
@@ -297,9 +291,9 @@ export default function NavbarV2() {
                       Logout Account
                    </button>
                  ) : (
-                   <button onClick={() => { setMobileOpen(false); setModalOpen(true); }} className="text-[#4a90e2] font-bold uppercase tracking-widest text-[10px] mt-4">
+                   <Link href="/login" onClick={() => setMobileOpen(false)} className="text-[#4a90e2] font-bold uppercase tracking-widest text-[10px] mt-4 block text-center">
                       Login / Sign Up
-                   </button>
+                  </Link>
                  )
                )}
             </div>

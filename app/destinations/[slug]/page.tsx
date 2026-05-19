@@ -1,8 +1,6 @@
 import { getDatabase } from "@/app/utils/getDatabase";
 import { ObjectId } from "mongodb";
-import Navbar from "../../components/frontend/Navbar";
-import Footer from "../../components/frontend/Footer";
-import PackageCard from "../../components/frontend/PackageCard";
+import LayoutV2 from "../../layouts-v2/LayoutV2";
 import FilteredPackageList from "../../components/frontend/FilteredPackageList";
 import SearchBar from "../../components/frontend/SearchBar";
 import Image from "next/image";
@@ -43,7 +41,6 @@ const FALLBACK_DESTINATIONS: Destination[] = [
   { name: "London", slug: "london", image: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=2070&auto=format&fit=crop", type: "international", label: "Historic Splendour" },
 ];
 
-
 import { Package } from "@/app/store/features/packages/types";
 
 export default async function DestinationPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -60,32 +57,29 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
 
   if (!destination) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
+      <LayoutV2>
+        <div className="flex-1 flex flex-col items-center justify-center py-24 px-10 text-center bg-gray-50">
           <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mb-6">
             <svg className="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h1 className="font-display text-4xl font-bold text-[#1a3f4e] mb-4">Destination Not Found</h1>
-          <p className="text-gray-500 max-w-md mx-auto mb-10 leading-relaxed">
+          <h1 className="font-['Poppins'] text-4xl font-extrabold text-[#1a3f4e] mb-4">Destination Not Found</h1>
+          <p className="text-gray-400 text-sm max-w-md mx-auto mb-10 leading-relaxed">
             The destination <span className="font-bold text-red-500">"{slug}"</span> doesn't seem to exist or has been moved. Explore our other trending locations instead!
           </p>
           <Link
             href="/locations"
-            className="px-10 py-4 bg-[#2fa3f2] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(47,163,242,0.4)] transition-all"
+            className="px-10 py-4 bg-[#4a90e2] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(74,144,226,0.4)] transition-all"
           >
             Explore All Destinations
           </Link>
         </div>
-        <Footer />
-      </div>
+      </LayoutV2>
     );
   }
 
   // 2. Fetch Packages for this destination
-  // We search for the destination title/slug in the package's fields
   const query: any = {
     $or: [
       { destination: { $regex: destination.name, $options: "i" } },
@@ -108,42 +102,52 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
   })) as any;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
-
+    <LayoutV2>
       {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[65vh] min-h-[500px] flex items-center justify-center overflow-hidden">
         <Image
           src={destination.image || "/images/placeholder.jpg"}
           alt={destination.name}
           fill
-          className="object-cover"
+          className="object-cover scale-102 transition-transform duration-10000 ease-out"
           priority
         />
-        <div className="absolute inset-0 bg-black/40" />
+        {/* Modern dark overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/35 to-black/80" />
 
-        <div className="container-sv relative z-10 text-center text-white">
-          {/* Breadcrumb removed */}
+        <div className="container-sv relative z-10 text-center text-white px-6">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-50/90 to-amber-50/90 border border-orange-200/60 text-[#ff6b00] text-[10px] font-black uppercase tracking-widest px-4.5 py-2.5 rounded-full shadow-sm mb-6">
+            ✦ {destination.type === "india" ? "India Gateway" : "International Gateway"}
+          </div>
 
-          <p className="text-[#2fa3f2] font-semibold text-sm uppercase tracking-widest mb-4 drop-shadow-md">
-            {destination.type === "india" ? "India" : "International Gateway"}
-          </p>
-          <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">
+          <h1 className="font-['Poppins'] text-5xl md:text-7xl font-black mb-5 tracking-tight drop-shadow-sm">
             {destination.name}
           </h1>
-          <p className="text-white/90 text-xl max-w-2xl mx-auto font-medium drop-shadow-md mb-10">
-            {destination.label}
+          <p className="text-white/80 text-base md:text-lg max-w-xl mx-auto font-medium drop-shadow-md mb-10 leading-relaxed">
+            {destination.label || destination.description || "Unveil spectacular sites and create long-lasting memories."}
           </p>
 
-          <div className="max-w-xl mx-auto">
+          <div className="max-w-md mx-auto bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20 shadow-2xl">
             <SearchBar placeholder={`Search packages in ${destination.name}...`} />
           </div>
         </div>
       </section>
 
       {/* Packages Section */}
-      <section className="section-pad flex-1">
+      <section className="py-24 bg-[#f8f9fa] flex-1">
         <div className="container-sv">
+          <div className="text-center max-w-xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-1 bg-sky-50 text-[#4a90e2] text-[10px] font-black uppercase tracking-widest px-4.5 py-2 rounded-full border border-sky-100/50 mb-4">
+              ✦ CURATED LISTING
+            </div>
+            <h2 className="font-['Poppins'] font-extrabold text-3xl md:text-4xl text-[#1a3f4e] tracking-tight">
+              Featured <span>Packages</span>
+            </h2>
+            <p className="text-gray-450 text-xs md:text-sm mt-3 leading-relaxed">
+              Explore dynamic itineraries, group vacations, and customized tours in {destination.name}.
+            </p>
+          </div>
+
           <FilteredPackageList
             packages={normalizedPackages}
             destinationTitle={destination.name}
@@ -151,27 +155,30 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
         </div>
       </section>
 
-      {/* Explore More */}
-      <section className="py-20 bg-[#1a3f4e] text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 opacity-10 translate-x-1/4 -translate-y-1/4">
-          <svg className="w-[600px] h-[600px]" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="white" /></svg>
-        </div>
+      {/* Expert Connect CTA Section */}
+      <section className="py-24 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white relative overflow-hidden">
+        {/* Floating radial glow backgrounds */}
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-radial from-sky-500/10 to-transparent pointer-events-none translate-x-1/3 -translate-y-1/3" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-radial from-orange-500/5 to-transparent pointer-events-none -translate-x-1/3 translate-y-1/3" />
 
-        <div className="container-sv relative z-10 text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-6">Want something custom built?</h2>
-          <p className="text-white/60 mb-10 max-w-xl mx-auto text-lg leading-relaxed">
-            Our travel experts can design a personalized itinerary for {destination.name} tailored exactly to your preferences.
+        <div className="container-sv relative z-10 text-center max-w-2xl mx-auto px-6">
+          <div className="inline-flex items-center gap-1 bg-orange-500/10 border border-orange-500/20 text-[#ff9500] text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full mb-6">
+            ✦ Custom Built Itineraries
+          </div>
+          <h2 className="font-['Poppins'] font-black text-3xl md:text-5xl mb-6 tracking-tight leading-tight">
+            Want a <span className="bg-gradient-to-r from-[#ff9500] to-[#ff6b00] bg-clip-text text-transparent">Custom Built</span> Adventure?
+          </h2>
+          <p className="text-gray-400 mb-10 text-sm md:text-base leading-relaxed">
+            Our travel curators can design a personalized itinerary for <span className="text-white font-bold">{destination.name}</span> tailored exactly to your preferences, budget, and style.
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 px-10 py-4 bg-[#2fa3f2] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(47,163,242,0.4)] transition-all"
+            className="inline-flex items-center justify-center px-10 py-4.5 bg-gradient-to-r from-[#ff9500] to-[#ff6b00] text-white text-xs font-black uppercase tracking-widest rounded-full transition-all duration-300 shadow-[0_6px_20px_rgba(255,149,0,0.25)] hover:shadow-[0_8px_30px_rgba(255,149,0,0.45)] hover:-translate-y-0.5"
           >
-            Connect with an Expert
+            Connect with an Expert →
           </Link>
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </LayoutV2>
   );
 }

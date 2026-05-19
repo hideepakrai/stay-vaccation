@@ -150,11 +150,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({ section: propSection, destina
           ))}
         </div>
       )}
-
-      <div className="hero-scroll">
-        <div className="hero-scroll-line"></div>
-        SCROLL
-      </div>
     </section>
   );
 };
